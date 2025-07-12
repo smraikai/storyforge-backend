@@ -57,7 +57,48 @@ export class GeminiRAGService {
           topP: 0.95,
           maxOutputTokens: 2048,
           candidateCount: 1,
-          responseMimeType: 'text/plain'
+          responseMimeType: 'application/json',
+          responseSchema: {
+            type: 'object',
+            properties: {
+              narrative: {
+                type: 'string',
+                description: 'The story continuation narration'
+              },
+              choices: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: {
+                      type: 'string',
+                      description: 'Unique identifier for the choice'
+                    },
+                    text: {
+                      type: 'string',
+                      description: 'The action text for the choice'
+                    },
+                    description: {
+                      type: 'string',
+                      description: 'Brief explanation of what this choice entails'
+                    }
+                  },
+                  required: ['id', 'text', 'description']
+                },
+                minItems: 4,
+                maxItems: 4
+              },
+              context: {
+                type: 'object',
+                properties: {
+                  location: { type: 'string' },
+                  mood: { type: 'string' },
+                  danger_level: { type: 'string' }
+                }
+              }
+            },
+            required: ['narrative', 'choices']
+          }
         },
         safetySettings: [
           { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -88,6 +129,24 @@ export class GeminiRAGService {
       }
 
       const generatedText = (data as any).candidates[0].content.parts[0]?.text || '';
+      
+      // Parse the JSON response
+      let storyResponse;
+      try {
+        storyResponse = JSON.parse(generatedText);
+      } catch (error) {
+        throw new Error(`Failed to parse JSON response: ${error}`);
+      }
+
+      // Validate required fields
+      if (!storyResponse.narrative || !storyResponse.choices || !Array.isArray(storyResponse.choices)) {
+        throw new Error('Invalid response format: missing narrative or choices');
+      }
+
+      if (storyResponse.choices.length !== 4) {
+        throw new Error(`Expected exactly 4 choices, got ${storyResponse.choices.length}`);
+      }
+
       const sources = contextUsed.map(ctx => 
         `${ctx.metadata.category}: ${ctx.metadata.name || ctx.metadata.title || ctx.metadata.id}`
       );
@@ -95,7 +154,7 @@ export class GeminiRAGService {
       console.log('✅ RAG-enhanced story generation completed successfully');
 
       return {
-        response: generatedText,
+        response: storyResponse,
         contextUsed,
         sources
       };
