@@ -59,6 +59,34 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// Apple Sign In
+router.post('/apple', async (req, res) => {
+  try {
+    const { appleUserId, email, name } = req.body;
+
+    if (!appleUserId || !email || !name) {
+      return res.status(400).json({
+        error: 'Apple user ID, email, and name are required'
+      });
+    }
+
+    const result = await authService.signInWithApple(appleUserId, email, name);
+
+    res.json({
+      success: true,
+      message: 'Apple Sign In successful',
+      data: result
+    });
+
+  } catch (error) {
+    console.error('Apple Sign In error:', error);
+    res.status(500).json({
+      error: 'Apple Sign In failed',
+      details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+    });
+  }
+});
+
 // Login user
 router.post('/login', async (req, res) => {
   try {

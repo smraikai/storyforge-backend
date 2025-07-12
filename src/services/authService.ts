@@ -6,6 +6,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  auth_provider: 'email' | 'apple';
   created_at: Date;
 }
 
@@ -37,9 +38,9 @@ export class AuthService {
 
     // Create user
     const result = await db.query(
-      `INSERT INTO users (email, name, password_hash) 
-       VALUES ($1, $2, $3) 
-       RETURNING id, email, name, created_at`,
+      `INSERT INTO users (email, name, password_hash, auth_provider) 
+       VALUES ($1, $2, $3, 'email') 
+       RETURNING id, email, name, auth_provider, created_at`,
       [email.toLowerCase(), name, passwordHash]
     );
 
@@ -52,6 +53,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        auth_provider: user.auth_provider,
         created_at: user.created_at
       }
     };
@@ -62,7 +64,7 @@ export class AuthService {
     
     // Find user
     const result = await db.query(
-      'SELECT id, email, name, password_hash, created_at FROM users WHERE email = $1',
+      'SELECT id, email, name, password_hash, auth_provider, created_at FROM users WHERE email = $1',
       [email.toLowerCase()]
     );
 
@@ -86,6 +88,64 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        auth_provider: user.auth_provider,
+        created_at: user.created_at
+      }
+    };
+  }
+
+  async signInWithApple(appleUserId: string, email: string, name: string): Promise<AuthTokens> {
+    const db = getDatabase();
+    
+    // Check if user already exists with this Apple ID
+    let result = await db.query(
+      'SELECT id, email, name, auth_provider, created_at FROM users WHERE apple_user_id = $1',
+      [appleUserId]
+    );
+
+    let user;
+    
+    if (result.rows.length > 0) {
+      // Existing Apple user
+      user = result.rows[0];
+    } else {
+      // Check if email already exists (link accounts)
+      const existingEmailUser = await db.query(
+        'SELECT id FROM users WHERE email = $1',
+        [email.toLowerCase()]
+      );
+
+      if (existingEmailUser.rows.length > 0) {
+        // Link Apple ID to existing email account
+        const updateResult = await db.query(
+          `UPDATE users 
+           SET apple_user_id = $1, auth_provider = 'apple' 
+           WHERE email = $2 
+           RETURNING id, email, name, auth_provider, created_at`,
+          [appleUserId, email.toLowerCase()]
+        );
+        user = updateResult.rows[0];
+      } else {
+        // Create new Apple user
+        const createResult = await db.query(
+          `INSERT INTO users (email, name, apple_user_id, auth_provider) 
+           VALUES ($1, $2, $3, 'apple') 
+           RETURNING id, email, name, auth_provider, created_at`,
+          [email.toLowerCase(), name, appleUserId]
+        );
+        user = createResult.rows[0];
+      }
+    }
+
+    const accessToken = this.generateToken(user.id);
+
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        auth_provider: user.auth_provider,
         created_at: user.created_at
       }
     };
@@ -97,7 +157,7 @@ export class AuthService {
       const db = getDatabase();
       
       const result = await db.query(
-        'SELECT id, email, name, created_at FROM users WHERE id = $1',
+        'SELECT id, email, name, auth_provider, created_at FROM users WHERE id = $1',
         [decoded.userId]
       );
 
@@ -110,6 +170,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         name: user.name,
+        auth_provider: user.auth_provider,
         created_at: user.created_at
       };
     } catch (error) {
