@@ -2,9 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import { initializeDatabase } from './config/database';
 
 // Load environment variables
 dotenv.config();
+
+// Initialize database connection
+initializeDatabase();
 
 // Express server setup
 const app = express();
@@ -28,6 +32,8 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/sessions', require('./routes/sessions'));
 app.use('/api/stories', require('./routes/stories'));
 app.use('/api/story', require('./routes/simpleStory'));
 
