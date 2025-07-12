@@ -207,7 +207,7 @@ CURRENT PLAYER ACTION: ${userQuery}
 Instructions:
 - Use the provided story context to ensure consistency with established characters, locations, and lore
 - Reference specific details from the context when relevant
-- Maintain the established tone and atmosphere of the Whispering Woods setting
+- Maintain the established tone and atmosphere of this story setting
 - Create meaningful choices that advance the narrative
 - Stay true to character personalities and relationships as described in the context
 
