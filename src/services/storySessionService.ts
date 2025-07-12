@@ -173,7 +173,6 @@ ${conversationText}`;
     try {
       const aiResponse = await this.geminiRAG.generateStoryWithRAG(
         session.story_id,
-        'You are an expert at summarizing D&D and story sessions.',
         summaryPrompt,
         []
       );

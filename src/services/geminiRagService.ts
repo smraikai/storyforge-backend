@@ -16,7 +16,6 @@ export class GeminiRAGService {
    */
   async generateStoryWithRAG(
     storyId: string,
-    systemPrompt: string,
     userMessage: string,
     conversationHistory: Array<{ role: string; content: string }> = []
   ): Promise<{
@@ -28,7 +27,6 @@ export class GeminiRAGService {
       // Get enhanced prompt with story context
       const { enhancedPrompt, contextUsed } = await this.ragService.generateEnhancedPrompt(
         storyId,
-        systemPrompt,
         userMessage,
         conversationHistory
       );

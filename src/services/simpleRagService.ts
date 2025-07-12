@@ -1,6 +1,8 @@
 import path from 'path';
 import fs from 'fs/promises';
 
+const UNIFIED_SYSTEM_PROMPT = `You are an expert interactive story narrator. Create immersive, engaging narratives with meaningful choices that affect the story outcome. Use the provided story context to ensure consistency with established characters, locations, lore, and themes. Present vivid descriptions and dialogue that match the story's tone and setting. Always offer meaningful choices that advance the narrative.`;
+
 export class SimpleRAGService {
   /**
    * Load and combine story content for a specific story into documents for RAG
@@ -177,7 +179,6 @@ Content: ${loreEntry.content}`,
    */
   async generateEnhancedPrompt(
     storyId: string,
-    systemPrompt: string,
     userQuery: string,
     conversationHistory: Array<{ role: string; content: string }> = []
   ): Promise<{
@@ -194,7 +195,7 @@ Content: ${loreEntry.content}`,
       .map(msg => `${msg.role === 'user' ? 'Player' : 'Narrator'}: ${msg.content}`)
       .join('\n');
 
-    const enhancedPrompt = `${systemPrompt}
+    const enhancedPrompt = `${UNIFIED_SYSTEM_PROMPT}
 
 STORY CONTEXT (Use this information to create accurate, consistent responses):
 ${contextString}

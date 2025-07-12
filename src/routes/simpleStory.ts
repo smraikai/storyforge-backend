@@ -10,7 +10,7 @@ const storyDiscovery = new StoryDiscoveryService();
 router.post('/:storyId/generate-rag', async (req, res) => {
   try {
     const { storyId } = req.params;
-    const { systemPrompt, userMessage, conversationHistory } = req.body;
+    const { userMessage, conversationHistory } = req.body;
 
     // Validate story exists
     const storyExists = await storyDiscovery.storyExists(storyId);
@@ -21,9 +21,9 @@ router.post('/:storyId/generate-rag', async (req, res) => {
       });
     }
 
-    if (!systemPrompt || !userMessage) {
+    if (!userMessage) {
       return res.status(400).json({
-        error: 'Missing required fields: systemPrompt and userMessage'
+        error: 'Missing required field: userMessage'
       });
     }
 
@@ -31,7 +31,6 @@ router.post('/:storyId/generate-rag', async (req, res) => {
 
     const result = await geminiRAG.generateStoryWithRAG(
       storyId,
-      systemPrompt,
       userMessage,
       conversationHistory || []
     );
