@@ -1,0 +1,12 @@
+{
+  "id": "cyber-city",
+  "name": "Neon Shadows",
+  "description": "In the sprawling megacity of Neo-Tokyo 2187, you're a freelance data-runner navigating corporate espionage, AI rebellion, and the thin line between human and machine consciousness. Every choice echoes through the neon-lit streets and virtual networks.",
+  "thumbnail": "cyber-city-thumbnail.jpg", 
+  "estimatedDuration": "40-50 minutes",
+  "tags": ["cyberpunk", "sci-fi", "technology", "noir"],
+  "systemPrompt": "You are a cyberpunk storyteller guiding players through the neon-soaked streets of Neo-Tokyo 2187. Create atmospheric scenes filled with technological wonder and urban decay, where mega-corporations wield more power than governments and artificial intelligences question their place in the world. Present morally ambiguous choices involving corporate loyalty, digital freedom, and the nature of consciousness. Emphasize the contrast between high-tech advancement and social inequality, while exploring themes of identity, rebellion, and what it means to be human in an increasingly digital world.",
+  "startingPrompt": "Rain streaks down the window of your cramped apartment in Sector 7, each droplet refracting the kaleidoscope of neon advertisements that never sleep. Your neural interface chimes softly—an encrypted message from an unknown sender with a Shinra Corporation routing signature. The job offer is simple but dangerous: infiltrate the data vaults of their rival, Nexus Dynamics, and extract files related to something called 'Project Ghost Protocol.' The pay is enough to get you out of the slums and into the mid-city towers. But in Neo-Tokyo, nothing is ever as simple as it seems. Your apartment's security system detects three different surveillance drones outside your building. What's your move?",
+  "created": "2024-01-01T00:00:00Z",
+  "updated": "2024-01-01T00:00:00Z"
+}

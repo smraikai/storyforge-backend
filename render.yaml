@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: storyforge-backend
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: GOOGLE_GENAI_API_KEY
+        sync: false # You'll set this in Render dashboard
+      - key: ALLOWED_ORIGINS
+        value: "*" # We'll update this with your app's URL later

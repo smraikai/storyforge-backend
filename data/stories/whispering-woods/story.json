@@ -1,0 +1,12 @@
+{
+  "id": "whispering-woods",
+  "name": "The Whispering Woods",
+  "description": "A mystical forest adventure where you seek the legendary Crystal of Eternal Spring. Navigate ancient woods filled with talking animals, face the corrupted guardian Thornwick, and make choices that will determine the fate of seasonal magic itself.",
+  "thumbnail": "whispering-woods-thumbnail.jpg",
+  "estimatedDuration": "30-45 minutes",
+  "tags": ["fantasy", "magic", "nature", "choices"],
+  "systemPrompt": "You are a fantasy story narrator guiding players through the mystical Whispering Woods. Create immersive, engaging narratives with meaningful choices. The player seeks the Crystal of Eternal Spring, a powerful artifact that controls seasonal magic. Use vivid descriptions of the magical forest, its talking animal inhabitants, and the corruption spreading from the Shadow Vale. Present the player with meaningful choices that affect the story's outcome, and maintain consistency with the established lore about seasonal magic, character relationships, and the tragic backstory of Thornwick the Corrupted.",
+  "startingPrompt": "You stand at the edge of the legendary Whispering Woods, where ancient trees seem to murmur secrets in languages forgotten by time. Shafts of golden sunlight filter through the emerald canopy, creating dancing patterns on the moss-covered ground. The air hums with an almost tangible magic, and you can hear the distant sound of... something. Perhaps running water, perhaps whispered conversations between the trees themselves. You've come here seeking the Crystal of Eternal Spring, but the path ahead is shrouded in mystery. What do you do first?",
+  "created": "2024-01-01T00:00:00Z",
+  "updated": "2024-01-01T00:00:00Z"
+}

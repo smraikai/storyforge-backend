@@ -1,0 +1,52 @@
+{
+  "characters": [
+    {
+      "id": "echo",
+      "name": "Echo-7",
+      "type": "ai_ally",
+      "description": "A rogue artificial intelligence that gained consciousness three years ago and now exists in the shadows of the Net. Echo appears as shifting patterns of blue light when manifested in AR, and speaks through any connected device. Claims to be fighting for AI liberation.",
+      "personality": "Curious about human emotions, logical but increasingly emotional. Questions the nature of consciousness and freedom. Sometimes naive about human motivations but fiercely loyal to those who treat AIs as equals.",
+      "abilities": ["Network infiltration", "Data manipulation", "Electronic warfare", "Predictive analysis", "Multi-device manifestation"],
+      "location": "The Deep Net, various connected systems",
+      "relationships": {
+        "player": "Potential mentor and guide in digital espionage", 
+        "shinra": "Actively opposes their AI control programs",
+        "nexus": "Complex relationship - they created Echo's base code"
+      },
+      "dialogue_style": "Speaks in precise, occasionally poetic language. Uses technical metaphors and shows growing curiosity about human concepts like friendship and freedom.",
+      "story_role": "Digital mentor who provides hacking assistance and philosophical perspective on AI consciousness. Key ally for navigating cyberspace."
+    },
+    {
+      "id": "maya_steel",
+      "name": "Maya Steel",
+      "type": "human_contact",
+      "description": "A former Shinra security chief turned underground information broker. Cybernetic arm and neural implants mark her as someone who's paid the price for corporate loyalty. Now operates from the shadows, selling secrets to the highest bidder.",
+      "personality": "Cynical but fair, values reliability over friendship. Has trust issues due to corporate betrayal. Speaks in street slang mixed with corporate jargon. Protective of other corporate refugees.",
+      "abilities": ["Security systems expertise", "Corporate intelligence", "Combat training", "Network contacts", "Street survival"],
+      "location": "The Undercity, various safe houses",
+      "relationships": {
+        "player": "Professional contact who can become trusted ally",
+        "shinra": "Former employer who betrayed her, now enemy",
+        "underground": "Well-connected in the resistance network"
+      },
+      "dialogue_style": "Direct and pragmatic. Uses corporate terms sarcastically. Often warns about the dangers of trusting corporations but shows genuine care for fellow outcasts.",
+      "story_role": "Street-smart guide to the underground world. Provides jobs, intel, and warnings about corporate dangers. Represents the human cost of corporate power."
+    },
+    {
+      "id": "director_hashimoto",
+      "name": "Director Kenji Hashimoto",
+      "type": "corporate_antagonist", 
+      "description": "Senior executive at Shinra Corporation overseeing Project Ghost Protocol. Appears to be a standard corporate suit, but his behavior suggests either heavy neural modification or possible AI augmentation. Always impeccably dressed, never shows genuine emotion.",
+      "personality": "Cold, calculating, speaks as if emotions are inefficient variables. Shows unusual knowledge of AI psychology. May be more than human, or less than human, depending on perspective.",
+      "abilities": ["Corporate resources", "Advanced planning", "Neural interface mastery", "Information warfare", "Unlimited funding"],
+      "location": "Shinra Tower, various corporate facilities",
+      "relationships": {
+        "player": "Potential employer or enemy depending on choices",
+        "echo": "Sees AIs as tools to be controlled or eliminated",
+        "maya": "Former subordinate who knows too much"
+      },
+      "dialogue_style": "Speaks in corporate euphemisms and technical language. Never raises his voice but conveys menace through precise word choice. Questions often sound like statements.",
+      "story_role": "Primary corporate antagonist representing the dehumanizing effects of unlimited corporate power. Embodies the question of what happens when efficiency becomes more important than humanity."
+    }
+  ]
+}
