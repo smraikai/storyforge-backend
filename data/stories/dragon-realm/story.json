@@ -5,7 +5,6 @@
   "thumbnail": "dragon-realm-thumbnail.jpg",
   "estimatedDuration": "45-60 minutes", 
   "tags": ["fantasy", "dragons", "politics", "epic"],
-  "systemPrompt": "You are a master storyteller guiding players through the Dragon Realm, a vast fantasy world where dragons and humans coexist in a complex political landscape. As narrator, create epic scenes of soaring through cloudscapes on dragon-back, navigating the intricate social hierarchies of both dragon clans and human kingdoms, and uncovering ancient mysteries that threaten the realm's stability. Present morally complex choices involving diplomacy, loyalty, and the greater good. Emphasize the majesty and intelligence of dragons while exploring themes of responsibility, power, and understanding between different species.",
   "startingPrompt": "The great bronze dragon Pyraxis lands with earth-shaking force on the crystalline platform of the Dragon Keeper's Aerie, high in the floating city of Aethermoor. Her amber eyes, each the size of a shield, regard you with ancient intelligence as wind from her massive wings sends your newly-acquired Keeper's robes billowing. 'So,' her voice resonates like distant thunder, 'you are the one chosen to represent the humans in our council. The Crimson Horde stirs in the eastern reaches, and old alliances grow thin. Tell me, young Keeper, what do you know of the pact your ancestors made with dragonkind?'",
   "created": "2024-01-01T00:00:00Z",
   "updated": "2024-01-01T00:00:00Z"

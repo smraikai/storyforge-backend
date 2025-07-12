@@ -42,10 +42,9 @@ RAG-enhanced backend for the StoryForge iOS app, providing intelligent story gen
 
 ```bash
 # RAG-enhanced story generation
-curl -X POST http://localhost:3000/api/simple-story/generate-rag \
+curl -X POST http://localhost:3000/api/simple-story/whispering-woods/generate-rag \
   -H "Content-Type: application/json" \
   -d '{
-    "systemPrompt": "You are a fantasy story narrator guiding players through the mystical Whispering Woods.",
     "userMessage": "I want to find Whiskers and ask about Thornwick",
     "conversationHistory": []
   }'

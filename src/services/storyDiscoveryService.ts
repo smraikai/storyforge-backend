@@ -8,7 +8,6 @@ export interface StoryMetadata {
   thumbnail: string;
   estimatedDuration: string;
   tags: string[];
-  systemPrompt: string;
   startingPrompt: string;
   created: string;
   updated: string;
