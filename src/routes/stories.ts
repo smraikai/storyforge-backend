@@ -7,7 +7,7 @@ const storyDiscovery = new StoryDiscoveryService();
 // Get all available stories
 router.get('/', async (req, res) => {
   try {
-    const stories = await storyDiscovery.getStorySummaries();
+    const stories = await storyDiscovery.getAllStories();
     
     res.json({
       success: true,
