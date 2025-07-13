@@ -132,17 +132,38 @@ export class GeminiRAGService {
       // Create a transform stream to process the Gemini streaming response
       const transformStream = new TransformStream({
         transform(chunk, controller) {
-          // Process streaming chunks from Gemini API
+          // Process streaming JSON chunks from Gemini API
           const decoder = new TextDecoder();
           const text = decoder.decode(chunk);
           
-          // For now, just forward all content as streaming chunks
-          // This handles the case where we get raw text content
-          if (text.trim()) {
-            controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
-              type: 'content',
-              content: text
-            })}\n\n`));
+          // Handle Gemini's streaming format
+          const lines = text.split('\n').filter(line => line.trim());
+          
+          for (const line of lines) {
+            try {
+              // Parse the JSON response from Gemini
+              const data = JSON.parse(line);
+              
+              if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                const content = data.candidates[0].content.parts[0]?.text;
+                if (content) {
+                  // Forward the raw JSON content for incremental parsing
+                  controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+                    type: 'content',
+                    content: content
+                  })}\n\n`));
+                }
+              }
+            } catch (error) {
+              // Try parsing as individual chunks if full JSON parsing fails
+              if (line.trim()) {
+                // Forward raw content for accumulation
+                controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({
+                  type: 'content',
+                  content: line
+                })}\n\n`));
+              }
+            }
           }
         }
       });
