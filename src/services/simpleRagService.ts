@@ -30,8 +30,7 @@ You must respond with a JSON object containing:
 
 Each choice object must have:
 - "id" - unique identifier (choice_1, choice_2, choice_3, custom)
-- "text" - the action description
-- "description" - brief explanation of the choice
+- "text" - the action text (3-6 words, first person like "I examine the door")
 
 Always provide exactly 3 meaningful story choices plus 1 "Write your own action" option.`;
 

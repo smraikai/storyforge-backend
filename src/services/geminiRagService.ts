@@ -77,13 +77,9 @@ export class GeminiRAGService {
                     text: {
                       type: 'string',
                       description: 'The action text for the choice'
-                    },
-                    description: {
-                      type: 'string',
-                      description: 'Brief explanation of what this choice entails'
                     }
                   },
-                  required: ['id', 'text', 'description']
+                  required: ['id', 'text']
                 },
                 minItems: 4,
                 maxItems: 4
