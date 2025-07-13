@@ -278,9 +278,8 @@ export class GeminiRAGService {
         ]
       };
 
-      // Make API call to Gemini with streaming
-      const streamingURL = this.baseURL.replace(':generateContent', ':streamGenerateContent');
-      const response = await fetch(`${streamingURL}?key=${this.apiKey}`, {
+      // Make API call to Gemini (non-streaming)
+      const response = await fetch(`${this.baseURL}?key=${this.apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
