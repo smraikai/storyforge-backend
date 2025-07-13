@@ -10,7 +10,7 @@ const storyDiscovery = new StoryDiscoveryService();
 router.post('/:storyId/generate-rag', async (req, res) => {
   try {
     const { storyId } = req.params;
-    const { userMessage, conversationHistory } = req.body;
+    const { userMessage, conversationHistory, actionType } = req.body;
 
     // Validate story exists
     const storyExists = await storyDiscovery.storyExists(storyId);
@@ -27,12 +27,13 @@ router.post('/:storyId/generate-rag', async (req, res) => {
       });
     }
 
-    console.log(`🎭 Processing RAG story request for ${storyId}:`, userMessage);
+    console.log(`🎭 Processing RAG story request for ${storyId}:`, userMessage, actionType ? `(${actionType})` : '');
 
     const result = await geminiRAG.generateStoryWithRAG(
       storyId,
       userMessage,
-      conversationHistory || []
+      conversationHistory || [],
+      actionType
     );
 
     res.json({

@@ -10,6 +10,7 @@ Your storytelling approach:
 - Use the provided story context to ensure perfect consistency with established characters, locations, lore, and relationships
 - Adapt your tone and style to match the specific story world's atmosphere
 - Keep responses engaging but concise (2-6 sentences for narration, longer for dialogue scenes)
+- Ensure your writing is at a 9th grade reading level
 
 Character and world consistency:
 - Reference specific details from the story context when relevant
@@ -43,6 +44,20 @@ Always provide exactly 3 balanced choices plus 1 custom option:
 
 Ensure each choice fits the current situation while maintaining these three distinct approaches.`;
 
+// Helper function to provide context for action types
+function getActionTypeContext(actionType: string): string {
+  switch (actionType.toLowerCase()) {
+    case 'dialogue':
+      return 'The player intends to COMMUNICATE - talk, ask questions, call out, or interact socially. Focus your response on dialogue opportunities, character interactions, and verbal exchanges.';
+    case 'decision':
+      return 'The player intends to take DIRECT ACTION - move, attack, grab, enter, or act decisively. Focus your response on action consequences, movement, and physical interactions.';
+    case 'exploration':
+      return 'The player intends to INVESTIGATE - examine, look around, search, or observe carefully. Focus your response on revealing details, discoveries, and sensory descriptions.';
+    default:
+      return '';
+  }
+}
+
 export class SimpleRAGService {
   /**
    * Load and combine story content for a specific story into documents for RAG
@@ -55,7 +70,7 @@ export class SimpleRAGService {
       // Load characters
       const charactersPath = path.join(storyDataDir, 'characters.json');
       const charactersData = JSON.parse(await fs.readFile(charactersPath, 'utf-8'));
-      
+
       for (const character of charactersData.characters) {
         documents.push({
           content: `Character: ${character.name}
@@ -68,8 +83,8 @@ Dialogue Style: ${character.dialogue_style}
 Story Role: ${character.story_role}
 ${character.backstory ? `Backstory: ${character.backstory}` : ''}
 Relationships: ${Object.entries(character.relationships || {})
-  .map(([key, value]) => `${key}: ${value}`)
-  .join('; ')}`,
+              .map(([key, value]) => `${key}: ${value}`)
+              .join('; ')}`,
           metadata: {
             type: 'character',
             id: character.id,
@@ -82,7 +97,7 @@ Relationships: ${Object.entries(character.relationships || {})
       // Load locations
       const locationsPath = path.join(storyDataDir, 'locations.json');
       const locationsData = JSON.parse(await fs.readFile(locationsPath, 'utf-8'));
-      
+
       for (const location of locationsData.locations) {
         documents.push({
           content: `Location: ${location.name}
@@ -94,8 +109,8 @@ Inhabitants: ${location.inhabitants.join(', ')}
 Danger Level: ${location.dangers}
 Story Significance: ${location.story_significance}
 Connections: ${Object.entries(location.connections || {})
-  .map(([key, value]) => `${key}: ${value}`)
-  .join('; ')}`,
+              .map(([key, value]) => `${key}: ${value}`)
+              .join('; ')}`,
           metadata: {
             type: 'location',
             id: location.id,
@@ -109,22 +124,22 @@ Connections: ${Object.entries(location.connections || {})
       try {
         const storyBeatsPath = path.join(storyDataDir, 'story_beats.json');
         const storyBeatsData = JSON.parse(await fs.readFile(storyBeatsPath, 'utf-8'));
-        
+
         for (const beat of storyBeatsData.story_beats) {
-        let content = `Story Beat: ${beat.name}
+          let content = `Story Beat: ${beat.name}
 Type: ${beat.type}
 Description: ${beat.description}
 Story Significance: ${beat.story_significance}`;
 
-        if (beat.choices) {
-          content += `\nChoices Available: ${beat.choices
-            .map((choice: any) => `${choice.option} -> ${choice.consequences}`)
-            .join('; ')}`;
-        }
+          if (beat.choices) {
+            content += `\nChoices Available: ${beat.choices
+              .map((choice: any) => `${choice.option} -> ${choice.consequences}`)
+              .join('; ')}`;
+          }
 
-        if (beat.key_information_revealed) {
-          content += `\nKey Information: ${beat.key_information_revealed.join('; ')}`;
-        }
+          if (beat.key_information_revealed) {
+            content += `\nKey Information: ${beat.key_information_revealed.join('; ')}`;
+          }
 
           documents.push({
             content,
@@ -144,7 +159,7 @@ Story Significance: ${beat.story_significance}`;
       try {
         const lorePath = path.join(storyDataDir, 'lore.json');
         const loreData = JSON.parse(await fs.readFile(lorePath, 'utf-8'));
-        
+
         for (const loreEntry of loreData.lore) {
           documents.push({
             content: `Lore: ${loreEntry.title}
@@ -181,20 +196,20 @@ Content: ${loreEntry.content}`,
   }>> {
     try {
       const documents = await this.loadStoryContent(storyId);
-      
+
       const queryLower = query.toLowerCase();
       const scoredResults = documents
         .map(doc => {
           const contentLower = doc.content.toLowerCase();
           let score = 0;
-          
+
           // Simple scoring based on keyword matches
           const queryWords = queryLower.split(' ').filter(word => word.length > 2);
           for (const word of queryWords) {
             const matches = (contentLower.match(new RegExp(word, 'g')) || []).length;
             score += matches;
           }
-          
+
           return {
             content: doc.content,
             relevanceScore: score,
@@ -220,13 +235,14 @@ Content: ${loreEntry.content}`,
   async generateEnhancedPrompt(
     storyId: string,
     userQuery: string,
-    conversationHistory: Array<{ role: string; content: string }> = []
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    actionType?: string
   ): Promise<{
     enhancedPrompt: string;
     contextUsed: Array<{ content: string; metadata: any }>;
   }> {
     const storyContext = await this.searchStoryContext(storyId, userQuery, 5);
-    
+
     const contextString = storyContext
       .map(ctx => `[${ctx.metadata.category}] ${ctx.content}`)
       .join('\n\n');
@@ -234,6 +250,9 @@ Content: ${loreEntry.content}`,
     const conversationString = conversationHistory
       .map(msg => `${msg.role === 'user' ? 'Player' : 'Narrator'}: ${msg.content}`)
       .join('\n');
+
+    // Create action type context
+    const actionTypeContext = actionType ? getActionTypeContext(actionType) : '';
 
     const enhancedPrompt = `${UNIFIED_SYSTEM_PROMPT}
 
@@ -243,7 +262,7 @@ ${contextString}
 CONVERSATION HISTORY:
 ${conversationString}
 
-CURRENT PLAYER ACTION: ${userQuery}
+CURRENT PLAYER ACTION: ${userQuery}${actionTypeContext ? `\nACTION TYPE: ${actionTypeContext}` : ''}
 
 Instructions:
 - Use the provided story context to ensure consistency with established characters, locations, and lore

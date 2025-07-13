@@ -17,7 +17,8 @@ export class GeminiRAGService {
   async generateStoryWithRAG(
     storyId: string,
     userMessage: string,
-    conversationHistory: Array<{ role: string; content: string }> = []
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    actionType?: string
   ): Promise<{
     response: string;
     contextUsed: Array<{ content: string; metadata: any }>;
@@ -28,7 +29,8 @@ export class GeminiRAGService {
       const { enhancedPrompt, contextUsed } = await this.ragService.generateEnhancedPrompt(
         storyId,
         userMessage,
-        conversationHistory
+        conversationHistory,
+        actionType
       );
 
       // Build conversation contents (same as iOS GeminiService)
