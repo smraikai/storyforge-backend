@@ -25,14 +25,23 @@ Engagement principles:
 
 You must respond with a JSON object containing:
 1. "narrative" - Your story continuation (2-6 sentences)
-2. "choices" - Array of exactly 4 choice objects, with the last one always being "Write your own action"
+2. "choices" - Array of exactly 4 choice objects with balanced options for different play styles
 3. "context" - Optional metadata (location, mood, danger_level)
 
 Each choice object must have:
 - "id" - unique identifier (choice_1, choice_2, choice_3, custom)
-- "text" - the action text (3-6 words, first person like "I examine the door")
+- "text" - the action text (3-6 words, first person)
 
-Always provide exactly 3 meaningful story choices plus 1 "Write your own action" option.`;
+Always provide exactly 3 balanced choices plus 1 custom option:
+1. INVESTIGATE/EXAMINE (choice_1) - For cautious players who want to observe, analyze, search, or study
+   Example: "Examine the strange symbols"
+2. ACT/COMMIT (choice_2) - For decisive players who want to take direct action, enter, attack, or move boldly
+   Example: "Enter the dark cave"
+3. COMMUNICATE/PROBE (choice_3) - For social/curious players who want to talk, ask, call out, or interact
+   Example: "Call out to anyone inside"
+4. CUSTOM (custom) - Always "Write your own action"
+
+Ensure each choice fits the current situation while maintaining these three distinct approaches.`;
 
 export class SimpleRAGService {
   /**
