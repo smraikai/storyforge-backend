@@ -5,6 +5,12 @@
   "thumbnail": "dragon-realm-thumbnail.jpg",
   "estimatedDuration": "45-60 minutes", 
   "tags": ["fantasy", "dragons", "politics", "epic"],
+  "author": {
+    "id": "storyforge-team",
+    "name": "StoryForge Team",
+    "bio": "The official creators of StoryForge, crafting immersive interactive adventures.",
+    "avatarURL": "https://cdn.storyforge.app/authors/storyforge-team.webp"
+  },
   "startingPrompt": "You are a newly appointed Dragon Keeper, chosen from hundreds of candidates to serve as humanity's representative in the ancient Council of Scales. After months of training in dragon lore, political protocol, and the old languages, today marks your first official meeting with a dragon lord.\n\nThe great bronze dragon Pyraxis lands with earth-shaking force on the crystalline platform of the Dragon Keeper's Aerie, high in the floating city of Aethermoor. Her amber eyes, each the size of a shield, regard you with ancient intelligence as wind from her massive wings sends your newly-acquired Keeper's robes billowing around you.\n\n\"So,\" her voice resonates like distant thunder, vibrating through your bones, \"you are the one chosen to represent the humans in our council. The Crimson Horde stirs in the eastern reaches, and old alliances grow thin as autumn leaves.\"\n\nShe lowers her massive head until her golden eye is level with yours, close enough that you can see your reflection in its depths. \"Tell me, young Keeper, what do you know of the pact your ancestors made with dragonkind? And more importantly...\" her voice drops to a rumbling whisper, \"do you have the courage to honor it when the time comes?\"",
   "created": "2024-01-01T00:00:00Z",
   "updated": "2024-01-01T00:00:00Z"

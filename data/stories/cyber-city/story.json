@@ -5,6 +5,12 @@
   "thumbnail": "cyber-city-thumbnail.jpg", 
   "estimatedDuration": "40-50 minutes",
   "tags": ["cyberpunk", "sci-fi", "technology", "noir"],
+  "author": {
+    "id": "storyforge-team",
+    "name": "StoryForge Team",
+    "bio": "The official creators of StoryForge, crafting immersive interactive adventures.",
+    "avatarURL": "https://cdn.storyforge.app/authors/storyforge-team.webp"
+  },
   "startingPrompt": "You are a freelance data-runner in Neo-Tokyo 2187, one of the few remaining humans who can still jack directly into the corporate networks without triggering their AI security protocols. Living in the cramped confines of Sector 7, you've built a reputation for getting in and out of digital fortresses that others consider impenetrable.\n\nRain streaks down the grimy window of your apartment, each droplet refracting the kaleidoscope of neon advertisements that never sleep. The perpetual glow of holographic billboards bathes everything in shifting colors of electric blue and crimson. Your neural interface chimes softly in your skull—an encrypted message from an unknown sender with a Shinra Corporation routing signature.\n\nThe job offer scrolls across your retinal display: \"Infiltrate Nexus Dynamics data vaults. Extract all files related to Project Ghost Protocol. Payment: 500,000 credits upon delivery. Discretion absolute.\"\n\nThe pay is enough to get you out of the slums and into the mid-city towers, maybe even buy citizenship in the Upper Levels. But in Neo-Tokyo, nothing is ever as simple as it seems. Your apartment's security system suddenly alerts you with a soft beep: \"Warning: Three surveillance drones detected. Pattern suggests corporate tracking protocol.\"\n\nYour fingers hover over the interface controls as the city's neon heartbeat pulses outside your window.",
   "created": "2024-01-01T00:00:00Z",
   "updated": "2024-01-01T00:00:00Z"
