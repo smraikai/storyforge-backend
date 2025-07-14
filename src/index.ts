@@ -2,13 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import { initializeDatabase } from './config/database';
 
 // Load environment variables
 dotenv.config();
-
-// Initialize database connection
-initializeDatabase();
 
 // Express server setup
 const app = express();
@@ -23,7 +19,7 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (_, res) => {
   res.json({ 
     status: 'healthy', 
     timestamp: new Date().toISOString(),
@@ -39,7 +35,7 @@ app.use('/api/story', require('./routes/simpleStory'));
 app.use('/api/admin', require('./routes/admin'));
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, _: express.Request, res: express.Response, __: express.NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({ 
     error: 'Internal server error',
