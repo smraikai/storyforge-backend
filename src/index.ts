@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import newsRoutes from './routes/news';
 
 // Load environment variables
 dotenv.config();
@@ -33,6 +34,7 @@ app.use('/api/sessions', require('./routes/sessions'));
 app.use('/api/stories', require('./routes/stories'));
 app.use('/api/story', require('./routes/simpleStory'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/news', newsRoutes);
 
 // Error handling middleware
 app.use((err: Error, _: express.Request, res: express.Response, __: express.NextFunction) => {
