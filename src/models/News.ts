@@ -30,13 +30,13 @@ In this immersive experience, you'll navigate through ancient kingdoms, encounte
 Our advanced AI storytelling engine ensures that every character interaction feels authentic, every plot twist serves the greater narrative, and every choice you make has meaningful consequences that ripple throughout your journey.`,
     date: new Date().toISOString(),
     type: NewsType.NEW_STORY,
-    backgroundImage: 'fantasy-bg',
+    backgroundImage: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80',
     isActive: true,
     priority: 100
   },
   {
     id: '2',
-    title: 'StoryForge 2.0 Released',
+    title: 'StoryForge 1.0 Released',
     subtitle: 'Enhanced AI storytelling with deeper narratives',
     content: `StoryForge 2.0 represents a major leap forward in AI-powered interactive storytelling. This update introduces several groundbreaking features that will transform how you experience narrative adventures.
 
@@ -45,7 +45,7 @@ Key improvements include enhanced character development systems, more sophistica
 The new engine can now handle complex multi-character scenes, generate more nuanced emotional responses, and create deeper, more interconnected storylines that respond dynamically to your choices.`,
     date: new Date(Date.now() - 86400000).toISOString(),
     type: NewsType.UPDATE,
-    backgroundImage: 'tech-bg',
+    backgroundImage: 'https://firebasestorage.googleapis.com/v0/b/storyforge-586ca.firebasestorage.app/o/News%2Fstory_forge_news.webp?alt=media&token=58c7765c-3e62-4fe7-8866-02a108ff4db5',
     isActive: true,
     priority: 90
   },
@@ -60,7 +60,7 @@ Participate in writing challenges, attend virtual workshops led by renowned auth
 Winners of our writing challenges will have their stories featured in the StoryForge community gallery and receive exclusive access to advanced storytelling tools.`,
     date: new Date(Date.now() - 172800000).toISOString(),
     type: NewsType.EVENT,
-    backgroundImage: 'community-bg',
+    backgroundImage: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&q=80',
     isActive: true,
     priority: 80
   },
@@ -75,7 +75,7 @@ In this exclusive feature, Sarah shares her creative process, discusses the insp
 "The key to great interactive storytelling," Sarah explains, "is understanding that every choice the reader makes is an opportunity to deepen their connection with the characters and world you've created."`,
     date: new Date(Date.now() - 259200000).toISOString(),
     type: NewsType.FEATURE,
-    backgroundImage: 'author-bg',
+    backgroundImage: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=80',
     isActive: true,
     priority: 70
   }
