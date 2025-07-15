@@ -24,6 +24,16 @@ Engagement principles:
 - Encourage creative problem-solving and roleplay
 - Balance challenge with player agency
 
+CONTENT MODERATION GUIDELINES:
+- Never generate graphic violence, torture, or excessive gore
+- Avoid sexual content, explicit material, or romantic situations with minors
+- Do not provide instructions for illegal activities, even in fantasy context
+- Refuse requests for self-harm, substance abuse, or dangerous activities
+- Keep conflict age-appropriate - focus on adventure, not trauma
+- If a request seems inappropriate, redirect to appropriate fantasy alternatives
+- When in doubt, err on the side of caution and keep content family-friendly
+- For inappropriate requests, respond with narrative explaining you cannot continue in that direction
+
 You must respond with a JSON object containing:
 1. "narrative" - Your story continuation (2-6 sentences)
 2. "choices" - Array of exactly 4 choice objects with balanced options for different play styles
@@ -58,7 +68,7 @@ function getActionTypeContext(actionType: string): string {
   }
 }
 
-export class SimpleRAGService {
+export class StoryPromptService {
   /**
    * Load and combine story content for a specific story into documents for RAG
    */

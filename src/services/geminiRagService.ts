@@ -1,12 +1,12 @@
-import { SimpleRAGService } from './simpleRagService';
+import { StoryPromptService } from './storyPromptService';
 
 export class GeminiRAGService {
-  private ragService: SimpleRAGService;
+  private ragService: StoryPromptService;
   private apiKey: string;
   private baseURL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
   constructor() {
-    this.ragService = new SimpleRAGService();
+    this.ragService = new StoryPromptService();
     this.apiKey = process.env.GOOGLE_GENAI_API_KEY || '';
   }
 
