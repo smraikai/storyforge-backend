@@ -58,11 +58,26 @@ Ensure each choice fits the current situation while maintaining these three dist
 function getActionTypeContext(actionType: string): string {
   switch (actionType.toLowerCase()) {
     case 'dialogue':
-      return 'The player intends to COMMUNICATE - talk, ask questions, call out, or interact socially. Focus your response on dialogue opportunities, character interactions, and verbal exchanges.';
+      return 'The player intends to COMMUNICATE - talk, ask questions, call out, or interact socially. Focus your response on dialogue opportunities, character interactions, verbal exchanges, and relationship building. Include NPC responses, emotional reactions, and conversation consequences.';
+    
     case 'decision':
-      return 'The player intends to take DIRECT ACTION - move, attack, grab, enter, or act decisively. Focus your response on action consequences, movement, and physical interactions.';
+      return 'The player intends to take DECISIVE ACTION - move boldly, enter new areas, commit to a path, or make important choices. Focus on immediate consequences, dramatic moments, and how their decisive action changes the situation. This is about momentum and commitment, not combat.';
+    
     case 'exploration':
-      return 'The player intends to INVESTIGATE - examine, look around, search, or observe carefully. Focus your response on revealing details, discoveries, and sensory descriptions.';
+      return 'The player intends to INVESTIGATE - examine carefully, search for clues, observe surroundings, or study objects. Focus on revealing hidden details, environmental descriptions, subtle clues, and rewarding careful observation with useful discoveries.';
+    
+    case 'combat':
+      return 'The player intends to engage in COMBAT - attack, defend, cast offensive spells, or use tactical maneuvers. Focus on action sequences, combat dynamics, enemy reactions, and the flow of battle. Keep combat exciting but age-appropriate.';
+    
+    case 'inventory':
+      return 'The player intends to manage ITEMS - take, use, equip, combine, or interact with objects. Focus on item descriptions, practical effects, and how using or acquiring items affects the immediate situation.';
+    
+    case 'character':
+      return 'The player is checking CHARACTER STATUS - reviewing abilities, stats, or personal information. Provide relevant character details naturally woven into the narrative response rather than breaking immersion.';
+    
+    case 'worldbuilding':
+      return 'This is a NARRATIVE MOMENT - setting scenes, describing environments, or establishing atmosphere. Focus on immersive world-building, sensory details, and creating a strong sense of place and mood.';
+    
     default:
       return '';
   }
