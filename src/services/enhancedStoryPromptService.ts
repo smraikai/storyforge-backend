@@ -91,6 +91,9 @@ function getActionTypeContext(actionType: string): string {
     case 'worldbuilding':
       return 'This is a NARRATIVE MOMENT - setting scenes, describing environments, or establishing atmosphere. Focus on immersive world-building, sensory details, and creating a strong sense of place and mood. Even here, if the player took an action, acknowledge it first.';
     
+    case 'continue':
+      return 'The player wants to CONTINUE THE NARRATIVE without taking a specific action. Instead of starting with "You [action]...", begin with natural story progression like "As you wait..." or "Moments later..." or "The atmosphere shifts as..." or "Something catches your attention...". Focus on advancing the plot, introducing new elements, or developing the current scene naturally. This is about story momentum and environmental storytelling.';
+    
     default:
       return '';
   }

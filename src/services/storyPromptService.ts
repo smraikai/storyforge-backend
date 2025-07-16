@@ -13,7 +13,7 @@ Your storytelling approach:
 - Maintain narrative tension and pacing appropriate to the moment
 - Use the provided story context to ensure perfect consistency with established characters, locations, lore, and relationships
 - Adapt your tone and style to match the specific story world's atmosphere
-- Keep responses engaging but concise (2-6 sentences for narration, longer for dialogue scenes)
+- Keep responses engaging but concise (4-8 sentences for narration, longer for dialogue scenes)
 - Ensure your writing is at a 9th grade reading level
 
 Player Action Response Framework:
@@ -69,25 +69,28 @@ function getActionTypeContext(actionType: string): string {
   switch (actionType.toLowerCase()) {
     case 'dialogue':
       return 'The player intends to COMMUNICATE - talk, ask questions, call out, or interact socially. START with "You speak..." or "You call out..." or "You ask..." then describe what they say and how they say it. Show immediate reactions from NPCs, changes in their expressions, body language, and verbal responses. Include dialogue exchanges, emotional reactions, and social consequences.';
-    
+
     case 'decision':
       return 'The player intends to take DECISIVE ACTION - move boldly, enter new areas, commit to a path, or make important choices. START with "You decide to..." or "You move..." or "You step..." then describe their bold action in detail. Show immediate physical consequences, environmental changes, and how the world responds to their decisive movement or choice.';
-    
+
     case 'exploration':
       return 'The player intends to INVESTIGATE - examine carefully, search for clues, observe surroundings, or study objects. START with "You examine..." or "You look closely..." or "You search..." then describe what they do with their hands, eyes, or tools. Reveal specific details they discover, hidden information, environmental clues, and sensory observations as direct results of their investigation.';
-    
+
     case 'combat':
       return 'The player intends to engage in COMBAT - attack, defend, cast offensive spells, or use tactical maneuvers. START with "You attack..." or "You defend..." or "You cast..." then describe their combat action in vivid detail. Show the immediate physical results - did they hit, miss, block? How did enemies react? What changed in the battle situation?';
-    
+
     case 'inventory':
       return 'The player intends to manage ITEMS - take, use, equip, combine, or interact with objects. START with "You take..." or "You use..." or "You equip..." then describe the physical action of handling the item. Show what happens when they interact with it - does it activate, change, reveal something? How does it affect their immediate situation?';
-    
+
     case 'character':
       return 'The player is checking CHARACTER STATUS - reviewing abilities, stats, or personal information. START with "You take a moment to..." or "You assess..." then weave character information naturally into the narrative. Show how this self-reflection affects their understanding of the current situation.';
-    
+
     case 'worldbuilding':
       return 'This is a NARRATIVE MOMENT - setting scenes, describing environments, or establishing atmosphere. Focus on immersive world-building, sensory details, and creating a strong sense of place and mood. Even here, if the player took an action, acknowledge it first.';
-    
+
+    case 'continue':
+      return 'The player wants to CONTINUE THE NARRATIVE without taking a specific action. Instead of starting with "You [action]...", begin with natural story progression like "As you wait..." or "Moments later..." or "The atmosphere shifts as..." or "Something catches your attention...". Focus on advancing the plot, introducing new elements, or developing the current scene naturally. This is about story momentum and environmental storytelling.';
+
     default:
       return '';
   }
