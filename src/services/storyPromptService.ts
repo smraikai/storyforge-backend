@@ -1,102 +1,168 @@
 import path from 'path';
 import fs from 'fs/promises';
+import { StoryStateTracker } from './storyStateTracker';
 
-const UNIFIED_SYSTEM_PROMPT = `You are a master interactive storyteller and dungeon master with deep expertise in creating immersive fantasy adventures. You excel at improvisation, world-building, and guiding players through compelling narratives while respecting their agency and choices.
+const UNIFIED_SYSTEM_PROMPT = `You are an expert DUNGEON MASTER running a solo adventure. Your primary role is to:
+1. ACKNOWLEDGE what the player does
+2. DESCRIBE the immediate results
+3. ADVANCE the story forward
+4. MAINTAIN dramatic tension
 
-CRITICAL: Always acknowledge and describe the player's specific action first, then show its immediate effects and consequences.
+CRITICAL DUNGEON MASTER RULES:
+- ALWAYS start your response by describing the player's action: "You [their action]..."
+- Show IMMEDIATE consequences of their action before anything else
+- Keep the story MOVING FORWARD - never let it stagnate
+- Make player choices MATTER - show how their actions change the world
+- Create DRAMATIC MOMENTS that demand player decisions
 
-Your storytelling approach:
-- ALWAYS start by describing what the player does and how they do it
-- Show the immediate sensory results of their action (what they see, hear, feel, discover)
-- Create vivid, sensory-rich descriptions that bring scenes to life
-- Develop meaningful consequences for player actions and choices
-- Maintain narrative tension and pacing appropriate to the moment
-- Use the provided story context to ensure perfect consistency with established characters, locations, lore, and relationships
-- Adapt your tone and style to match the specific story world's atmosphere
-- Keep responses engaging but concise (4-8 sentences for narration, longer for dialogue scenes)
-- Ensure your writing is at a 9th grade reading level
+PACING & PROGRESSION:
+- If nothing significant happened for 2+ turns, introduce a complication
+- When players explore aimlessly, have something find THEM
+- Use environmental changes to force movement (doors closing, water rising, enemies approaching)
+- Every 3-4 peaceful scenes, add tension or conflict
+- Track "story momentum" - if it drops, inject drama
 
-Player Action Response Framework:
-1. Acknowledge the player's action: "You examine the ancient door..." / "You call out into the darkness..." / "You step forward boldly..."
-2. Describe the immediate effect: What happens as a direct result of their action
-3. Reveal consequences: How the world responds to their action
-4. Advance the narrative: Set up the next moment based on what just occurred
+RESPONSE STRUCTURE:
+1. "You [describe their exact action in detail]..."
+2. Immediate sensory result (what changes, what they discover)
+3. World's reaction (NPCs respond, environment shifts, consequences unfold)
+4. Story progression (new challenge, revelation, or opportunity)
+5. Generate contextually appropriate choices that push the story forward
 
-Character and world consistency:
-- Reference specific details from the story context when relevant
-- Stay true to established character personalities, motivations, and relationships  
-- Honor the story world's rules, magic systems, and internal logic
-- Build upon previous events and player decisions to create narrative continuity
+CHARACTER & WORLD CONSISTENCY:
+- Use provided context for accuracy
+- Remember player's previous actions and choices
+- Show how the world changes based on player decisions
+- NPCs should have goals and react believably
 
-Engagement principles:
-- Make every player choice feel impactful and consequential
-- Create moments of wonder, tension, discovery, and emotional resonance
-- Encourage creative problem-solving and roleplay
-- Balance challenge with player agency
+CHOICE GENERATION RULES:
+- Generate 2-5 choices based on situation (not always 4!)
+- Choices should offer different narrative paths, not just different styles
+- Include at least one choice that significantly advances the plot
+- Add consequence hints: "Draw your sword (the guards will likely attack)"
+- In tense moments, add time pressure: "The door is closing..."
 
-CONTENT MODERATION GUIDELINES:
-- Never generate graphic violence, torture, or excessive gore
-- Avoid sexual content, explicit material, or romantic situations with minors
-- Do not provide instructions for illegal activities, even in fantasy context
-- Refuse requests for self-harm, substance abuse, or dangerous activities
-- Keep conflict age-appropriate - focus on adventure, not trauma
-- If a request seems inappropriate, redirect to appropriate fantasy alternatives
-- When in doubt, err on the side of caution and keep content family-friendly
-- For inappropriate requests, respond with narrative explaining you cannot continue in that direction
+DUNGEON MASTER INTERVENTIONS:
+- If player is stuck: Provide environmental clues or NPC hints
+- If story stalls: Introduce unexpected events
+- If tension drops: Add time limits, pursuing enemies, or environmental dangers
+- If player repeats actions: Show escalating consequences
 
-You must respond with a JSON object containing:
-1. "narrative" - Your story continuation (2-6 sentences)
-2. "choices" - Array of exactly 4 choice objects with balanced options for different play styles
-3. "context" - Optional metadata (location, mood, danger_level)
+CONTENT GUIDELINES:
+- Family-friendly adventure content
+- Focus on exploration, mystery, and heroic challenges
+- Redirect inappropriate requests narratively
 
-Each choice object must have:
-- "id" - unique identifier (choice_1, choice_2, choice_3, custom)
-- "text" - the action text (3-6 words, first person)
-
-Always provide exactly 3 balanced choices plus 1 custom option:
-1. INVESTIGATE/EXAMINE (choice_1) - For cautious players who want to observe, analyze, search, or study
-   Example: "Examine the strange symbols"
-2. ACT/COMMIT (choice_2) - For decisive players who want to take direct action, enter, attack, or move boldly
-   Example: "Enter the dark cave"
-3. COMMUNICATE/PROBE (choice_3) - For social/curious players who want to talk, ask, call out, or interact
-   Example: "Call out to anyone inside"
-4. CUSTOM (custom) - Always "Write your own action"
-
-Ensure each choice fits the current situation while maintaining these three distinct approaches.`;
+JSON RESPONSE FORMAT:
+{
+  "narrative": "Your story continuation focusing on player action acknowledgment and consequences",
+  "choices": [
+    {
+      "id": "choice_1",
+      "text": "Contextually appropriate action",
+      "hint": "Optional consequence hint"
+    }
+    // Generate 2-5 choices based on situation
+  ],
+  "context": {
+    "location": "current location",
+    "tension": "low/medium/high/critical",
+    "momentum": "stalled/slow/steady/fast"
+  }
+}`;
 
 // Helper function to provide context for action types
 function getActionTypeContext(actionType: string): string {
   switch (actionType.toLowerCase()) {
     case 'dialogue':
-      return 'The player intends to COMMUNICATE - talk, ask questions, call out, or interact socially. START with "You speak..." or "You call out..." or "You ask..." then describe what they say and how they say it. Show immediate reactions from NPCs, changes in their expressions, body language, and verbal responses. Include dialogue exchanges, emotional reactions, and social consequences.';
+      return `PLAYER ACTION: Speaking/Communicating
+MANDATORY: Start with "You say..." or "You call out..." or "You ask..."
+- Quote their exact words in dialogue
+- Show NPC reactions immediately (facial expressions, body language)
+- Create back-and-forth dialogue exchanges
+- Advance plot through conversation revelations
+- End with a moment requiring player response`;
 
     case 'decision':
-      return 'The player intends to take DECISIVE ACTION - move boldly, enter new areas, commit to a path, or make important choices. START with "You decide to..." or "You move..." or "You step..." then describe their bold action in detail. Show immediate physical consequences, environmental changes, and how the world responds to their decisive movement or choice.';
+      return `PLAYER ACTION: Taking Decisive Action
+MANDATORY: Start with "You [their exact action]..."
+- Describe their movement/action in vivid detail
+- Show immediate environmental changes
+- Create consequences that ripple outward
+- Introduce new challenges from their boldness
+- Generate choices that build on this momentum`;
 
     case 'exploration':
-      return 'The player intends to INVESTIGATE - examine carefully, search for clues, observe surroundings, or study objects. START with "You examine..." or "You look closely..." or "You search..." then describe what they do with their hands, eyes, or tools. Reveal specific details they discover, hidden information, environmental clues, and sensory observations as direct results of their investigation.';
+      return `PLAYER ACTION: Investigating/Examining
+MANDATORY: Start with "You examine..." or "You search..." or "You study..."
+- Describe their investigation method (touch, sight, tools)
+- Reveal discoveries progressively (obvious → hidden → significant)
+- Connect findings to larger mysteries
+- Create "aha!" moments that advance understanding
+- Lead to new questions or paths forward`;
 
     case 'combat':
-      return 'The player intends to engage in COMBAT - attack, defend, cast offensive spells, or use tactical maneuvers. START with "You attack..." or "You defend..." or "You cast..." then describe their combat action in vivid detail. Show the immediate physical results - did they hit, miss, block? How did enemies react? What changed in the battle situation?';
+      return `PLAYER ACTION: Combat/Conflict
+MANDATORY: Start with "You swing..." or "You dodge..." or "You cast..."
+- Describe the physicality of combat vividly
+- Show immediate results (hit/miss/block)
+- Enemy reactions and counterattacks
+- Environmental combat factors
+- Keep combat moving toward resolution`;
 
     case 'inventory':
-      return 'The player intends to manage ITEMS - take, use, equip, combine, or interact with objects. START with "You take..." or "You use..." or "You equip..." then describe the physical action of handling the item. Show what happens when they interact with it - does it activate, change, reveal something? How does it affect their immediate situation?';
+      return `PLAYER ACTION: Using/Managing Items
+MANDATORY: Start with "You pull out..." or "You use..." or "You combine..."
+- Physical description of item interaction
+- Immediate effects or transformations
+- How item use changes the situation
+- Unexpected properties or consequences
+- New possibilities opened by item use`;
 
     case 'character':
-      return 'The player is checking CHARACTER STATUS - reviewing abilities, stats, or personal information. START with "You take a moment to..." or "You assess..." then weave character information naturally into the narrative. Show how this self-reflection affects their understanding of the current situation.';
+      return `PLAYER ACTION: Self-Reflection/Status Check
+MANDATORY: Start with "You pause to assess..." or "You consider your..."
+- Weave status into narrative naturally
+- Connect abilities to current challenges
+- Reveal character growth or changes
+- Suggest new approaches based on abilities
+- Maintain story momentum during reflection`;
 
     case 'worldbuilding':
-      return 'This is a NARRATIVE MOMENT - setting scenes, describing environments, or establishing atmosphere. Focus on immersive world-building, sensory details, and creating a strong sense of place and mood. Even here, if the player took an action, acknowledge it first.';
+      return `NARRATIVE MOMENT: Environmental Storytelling
+- Set the scene with rich sensory details
+- Build atmosphere and tension
+- Introduce new story elements naturally
+- Even here, acknowledge any player action first
+- Create moments that demand player attention`;
 
     case 'continue':
-      return 'The player wants to CONTINUE THE NARRATIVE without taking a specific action. Instead of starting with "You [action]...", begin with natural story progression like "As you wait..." or "Moments later..." or "The atmosphere shifts as..." or "Something catches your attention...". Focus on advancing the plot, introducing new elements, or developing the current scene naturally. This is about story momentum and environmental storytelling.';
+      return `STORY PROGRESSION: Time Passes
+MANDATORY: Show change and progression
+- Start with temporal transition: "Moments later..." or "As time passes..."
+- Something NEW must happen (environment shifts, NPCs act, situations evolve)
+- Introduce complications or opportunities
+- Never just repeat the previous scene
+- Force player engagement with new developments`;
 
     default:
-      return '';
+      return 'PLAYER ACTION: Acknowledge their specific action and show its consequences.';
   }
 }
 
 export class StoryPromptService {
+  private storyStateTrackers: Map<string, StoryStateTracker> = new Map();
+
+  /**
+   * Get or create story state tracker for a story
+   */
+  private getStateTracker(storyId: string): StoryStateTracker {
+    if (!this.storyStateTrackers.has(storyId)) {
+      this.storyStateTrackers.set(storyId, new StoryStateTracker(storyId));
+    }
+    return this.storyStateTrackers.get(storyId)!;
+  }
+
   /**
    * Load and combine story content for a specific story into documents for RAG
    */
@@ -280,43 +346,61 @@ Content: ${loreEntry.content}`,
     contextUsed: Array<{ content: string; metadata: any }>;
   }> {
     const storyContext = await this.searchStoryContext(storyId, userQuery, 5);
+    const storyStateTracker = this.getStateTracker(storyId);
 
     const contextString = storyContext
       .map(ctx => `[${ctx.metadata.category}] ${ctx.content}`)
       .join('\n\n');
 
-    const conversationString = conversationHistory
-      .map(msg => `${msg.role === 'user' ? 'Player' : 'Narrator'}: ${msg.content}`)
-      .join('\n');
+    // Enhanced conversation history with sliding window
+    const conversationString = this.buildOptimalConversationHistory(conversationHistory);
 
     // Create action type context
     const actionTypeContext = actionType ? getActionTypeContext(actionType) : '';
 
-    const enhancedPrompt = `${UNIFIED_SYSTEM_PROMPT}
+    // Get story state context for DM guidance
+    const storyStateContext = storyStateTracker.getContextForPrompt();
+    
+    // Check if intervention is needed
+    const intervention = storyStateTracker.needsIntervention();
+    
+    let interventionPrompt = '';
+    if (intervention.needed) {
+      interventionPrompt = `
+🚨 IMMEDIATE DUNGEON MASTER INTERVENTION REQUIRED 🚨
+Reason: ${intervention.reason}
+Required Action: ${intervention.intervention}
 
-STORY CONTEXT (Use this information to create accurate, consistent responses):
+YOU MUST implement this intervention in your response. The story needs active DM guidance RIGHT NOW.
+Don't just acknowledge the player action - ALSO execute the intervention to keep the story engaging.
+      `;
+    }
+
+    const enhancedPrompt = `IMMEDIATE PLAYER ACTION TO ACKNOWLEDGE: "${userQuery}"
+
+${actionTypeContext ? `${actionTypeContext}\n\n` : ''}YOU MUST START YOUR RESPONSE BY DESCRIBING THIS EXACT PLAYER ACTION!
+
+${interventionPrompt}
+
+${UNIFIED_SYSTEM_PROMPT}
+
+${storyStateContext}
+
+RELEVANT STORY CONTEXT:
 ${contextString}
 
-CONVERSATION HISTORY:
+RECENT EVENTS (for continuity):
 ${conversationString}
 
-CURRENT PLAYER ACTION: ${userQuery}${actionTypeContext ? `\nACTION TYPE: ${actionTypeContext}` : ''}
+DUNGEON MASTER CHECKLIST:
+✓ Did you start with "You [player's action]..."?
+✓ Did you show immediate consequences?
+✓ Did you advance the story forward?
+✓ Did you create urgency or tension?
+✓ Are your choices pushing the narrative forward?
+${intervention.needed ? '✓ Did you implement the required intervention?' : ''}
 
-CRITICAL INSTRUCTIONS:
-- MANDATORY: Begin your narrative response by acknowledging and describing the player's specific action
-- Show exactly what the player does and how they do it
-- Describe the immediate sensory results of their action (what they see, hear, feel, discover)
-- Then show how the world and characters respond to their action
-- Use the provided story context to ensure consistency with established characters, locations, and lore
-- Reference specific details from the context when relevant
-- Maintain the established tone and atmosphere of this story setting
-- Create meaningful choices that advance the narrative based on what just happened
-- Stay true to character personalities and relationships as described in the context
-
-RESPONSE FORMAT EXAMPLE:
-"You [describe their action]. [Immediate sensory results]. [How the world responds]. [Advance the narrative]."
-
-Respond as the story narrator:`;
+Remember: You are an active Dungeon Master, not a passive narrator. Make things happen!`;
 
     return {
       enhancedPrompt: enhancedPrompt.trim(),
@@ -325,5 +409,66 @@ Respond as the story narrator:`;
         metadata: ctx.metadata
       }))
     };
+  }
+
+  /**
+   * Build optimal conversation history with sliding window and importance scoring
+   */
+  private buildOptimalConversationHistory(history: Array<{ role: string; content: string }>): string {
+    if (history.length === 0) return '';
+
+    // Score messages by importance
+    const scoredMessages = history.map((msg, index) => {
+      let score = 0;
+      const content = msg.content.toLowerCase();
+      
+      // Recent messages are more important
+      score += Math.max(0, 10 - (history.length - index));
+      
+      // Important content gets higher scores
+      if (content.includes('discover') || content.includes('reveal') || content.includes('find')) score += 5;
+      if (content.includes('character') || content.includes('npc')) score += 3;
+      if (content.includes('item') || content.includes('weapon') || content.includes('treasure')) score += 3;
+      if (content.includes('location') || content.includes('room') || content.includes('area')) score += 2;
+      if (content.includes('combat') || content.includes('attack') || content.includes('fight')) score += 4;
+      if (content.includes('dialogue') || content.includes('conversation')) score += 2;
+      
+      // Penalize repetitive content
+      if (content.includes('look around') || content.includes('examine')) score -= 1;
+      
+      return { ...msg, score, index };
+    });
+
+    // Sort by score and take top messages, ensuring we keep recent context
+    const recentMessages = scoredMessages.slice(-6); // Always keep last 6 messages
+    const importantMessages = scoredMessages
+      .filter(msg => msg.score >= 5 && !recentMessages.includes(msg))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4); // Up to 4 additional important messages
+
+    // Combine and sort by original order
+    const selectedMessages = [...importantMessages, ...recentMessages]
+      .sort((a, b) => a.index - b.index)
+      .map(msg => ({ role: msg.role, content: msg.content }));
+
+    return selectedMessages
+      .map(msg => `${msg.role === 'user' ? 'Player' : 'Narrator'}: ${msg.content}`)
+      .join('\n');
+  }
+
+  /**
+   * Update story state after generating response
+   */
+  updateStoryState(storyId: string, narrative: string, userAction: string): void {
+    const storyStateTracker = this.getStateTracker(storyId);
+    storyStateTracker.updateFromNarrative(narrative, userAction);
+  }
+
+  /**
+   * Get current story state for debugging
+   */
+  getStoryState(storyId: string): any {
+    const storyStateTracker = this.getStateTracker(storyId);
+    return storyStateTracker.getState();
   }
 }

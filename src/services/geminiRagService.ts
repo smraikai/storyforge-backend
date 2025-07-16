@@ -79,19 +79,29 @@ export class GeminiRAGService {
                     text: {
                       type: 'string',
                       description: 'The action text for the choice'
+                    },
+                    hint: {
+                      type: 'string',
+                      description: 'Optional hint about consequences'
                     }
                   },
                   required: ['id', 'text']
                 },
-                minItems: 4,
-                maxItems: 4
+                minItems: 2,
+                maxItems: 5
               },
               context: {
                 type: 'object',
                 properties: {
                   location: { type: 'string' },
-                  mood: { type: 'string' },
-                  danger_level: { type: 'string' }
+                  tension: { 
+                    type: 'string',
+                    enum: ['low', 'medium', 'high', 'critical']
+                  },
+                  momentum: {
+                    type: 'string', 
+                    enum: ['stalled', 'slow', 'steady', 'fast']
+                  }
                 }
               }
             },
@@ -141,8 +151,8 @@ export class GeminiRAGService {
         throw new Error('Invalid response format: missing narrative or choices');
       }
 
-      if (storyResponse.choices.length !== 4) {
-        throw new Error(`Expected exactly 4 choices, got ${storyResponse.choices.length}`);
+      if (storyResponse.choices.length < 2 || storyResponse.choices.length > 5) {
+        throw new Error(`Expected 2-5 choices, got ${storyResponse.choices.length}`);
       }
 
       const sources = contextUsed.map(ctx => 
@@ -150,6 +160,9 @@ export class GeminiRAGService {
       );
 
       console.log('✅ RAG-enhanced story generation completed successfully');
+
+      // Update story state tracking
+      this.ragService.updateStoryState(storyId, storyResponse.narrative, userMessage);
 
       return {
         response: storyResponse,
