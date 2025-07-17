@@ -12,6 +12,7 @@ async function startServer() {
 
   const newsRoutes = (await import('./routes/news')).default;
   const inventoryRoutes = (await import('./routes/inventory')).default;
+  const worldStateRoutes = (await import('./routes/worldState')).default;
 
   // Express server setup
   const app = express();
@@ -42,6 +43,7 @@ async function startServer() {
   app.use('/api/admin', require('./routes/admin'));
   app.use('/api/news', newsRoutes);
   app.use('/api/inventory', inventoryRoutes);
+  app.use('/api/world', worldStateRoutes);
 
   // Error handling middleware
   app.use((err: Error, _: express.Request, res: express.Response, __: express.NextFunction) => {

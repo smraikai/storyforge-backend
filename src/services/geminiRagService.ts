@@ -29,13 +29,16 @@ export class GeminiRAGService {
   }> {
     try {
       // Get enhanced prompt with story context
+      // For now, use a default location - this can be enhanced later to extract from context
+      const defaultLocation = 'training_grounds';
       const { enhancedPrompt, contextUsed } = await this.ragService.generateEnhancedPrompt(
         storyId,
         userMessage,
         conversationHistory,
         actionType,
         userId,
-        sessionId
+        sessionId,
+        defaultLocation
       );
 
       // Build conversation contents (same as iOS GeminiService)

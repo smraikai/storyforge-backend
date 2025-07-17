@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import { InventoryService } from './inventoryService';
+import { WorldStateService } from './worldStateService';
 // Removed complex story progression services for sandbox approach
 
 const UNIFIED_SYSTEM_PROMPT = `You are an expert DUNGEON MASTER running a solo adventure. Your primary role is to:
@@ -161,10 +162,12 @@ MANDATORY: Show change and progression
 export class StoryPromptService {
   // Simplified for sandbox approach - removed complex state tracking
   private inventoryService: InventoryService;
+  private worldStateService: WorldStateService;
   
   constructor() {
     // Simplified constructor
     this.inventoryService = new InventoryService();
+    this.worldStateService = new WorldStateService();
   }
 
   /**
@@ -346,7 +349,8 @@ Content: ${loreEntry.content}`,
     conversationHistory: Array<{ role: string; content: string }> = [],
     actionType?: string,
     userId?: string,
-    sessionId?: string
+    sessionId?: string,
+    locationId?: string
   ): Promise<{
     enhancedPrompt: string;
     contextUsed: Array<{ content: string; metadata: any }>;
@@ -426,6 +430,22 @@ Content: ${loreEntry.content}`,
       console.log('⚠️ No userId or sessionId provided - skipping inventory validation');
     }
 
+    // Get world state context (items on the ground)
+    let worldStateContext = '';
+    if (locationId) {
+      try {
+        console.log('🌍 Loading world state for location:', locationId, 'story:', storyId);
+        const worldStateSummary = await this.worldStateService.getLocationItemsSummary(storyId, locationId);
+        worldStateContext = `\n\n${worldStateSummary}`;
+        console.log('✅ World state summary loaded:', worldStateSummary);
+      } catch (error) {
+        console.error('❌ Error getting world state context:', error);
+        worldStateContext = '\n\nWORLD ITEMS: Unable to load world state';
+      }
+    } else {
+      console.log('⚠️ No locationId provided - skipping world state context');
+    }
+
     // Removed story state tracking for sandbox approach
     // In sandbox mode, the LLM handles all story progression organically
     
@@ -444,7 +464,7 @@ RELEVANT STORY CONTEXT:
 ${contextString}
 
 RECENT EVENTS (for continuity):
-${conversationString}${inventoryContext}${availableItemsContext}
+${conversationString}${inventoryContext}${worldStateContext}${availableItemsContext}
 
 DUNGEON MASTER CHECKLIST:
 ✓ Did you start with "You [player's action]..."?

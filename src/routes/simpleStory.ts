@@ -2,12 +2,14 @@ import { Router } from 'express';
 import { GeminiRAGService } from '../services/geminiRagService';
 import { StoryDiscoveryService } from '../services/storyDiscoveryService';
 import { InventoryService } from '../services/inventoryService';
+import { WorldStateService } from '../services/worldStateService';
 import admin from '../config/firebase';
 
 const router = Router();
 const geminiRAG = new GeminiRAGService();
 const storyDiscovery = new StoryDiscoveryService();
 const inventoryService = new InventoryService();
+const worldStateService = new WorldStateService();
 
 // RAG-enhanced story generation using direct Gemini API
 router.post('/:storyId/generate-rag', async (req, res) => {
@@ -120,14 +122,42 @@ router.post('/:storyId/generate-rag', async (req, res) => {
         // Process items lost
         if (result.inventoryChanges.items_lost && result.inventoryChanges.items_lost.length > 0) {
           for (const item of result.inventoryChanges.items_lost) {
-            console.log(`🗑️ Removing item from inventory: ${item.name} (${item.quantity || 1})`);
+            console.log(`🗑️ Processing item loss: ${item.name} (${item.quantity || 1}) - ${item.reason || 'no reason given'}`);
             const inventory = await inventoryService.getPlayerInventory(userId, sessionId);
             if (inventory) {
               const inventoryItem = inventory.items.find(invItem => 
                 invItem.name.toLowerCase() === item.name.toLowerCase()
               );
               if (inventoryItem) {
-                await inventoryService.removeItem(userId, sessionId, inventoryItem.id, item.quantity || 1);
+                // Check if this is a "drop" action based on the reason
+                const isDrop = item.reason?.includes('drop') || 
+                              item.reason?.includes('voluntarily') ||
+                              item.reason?.includes('placed on ground') ||
+                              item.reason?.includes('set down');
+                
+                if (isDrop) {
+                  // Move item to world state instead of just removing it
+                  console.log(`📍 Dropping item to world state: ${item.name}`);
+                  try {
+                    const defaultLocation = 'training_grounds'; // Use same default as story generation
+                    await worldStateService.dropItem(
+                      userId,
+                      sessionId,
+                      storyId,
+                      defaultLocation,
+                      inventoryItem.id
+                    );
+                    console.log(`✅ Item dropped to world state successfully: ${item.name}`);
+                  } catch (error) {
+                    console.error(`❌ Failed to drop item to world state: ${error}`);
+                    // Fallback to regular removal if world state fails
+                    await inventoryService.removeItem(userId, sessionId, inventoryItem.id, item.quantity || 1);
+                  }
+                } else {
+                  // Regular removal (consumed, destroyed, etc.)
+                  console.log(`🗑️ Removing item from inventory: ${item.name}`);
+                  await inventoryService.removeItem(userId, sessionId, inventoryItem.id, item.quantity || 1);
+                }
               }
             }
           }
