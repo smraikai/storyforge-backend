@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import { StoryStateTracker } from './storyStateTracker';
+import { ScenarioProgressionService, PlayerProgress } from './scenarioProgressionService';
 
 const UNIFIED_SYSTEM_PROMPT = `You are an expert DUNGEON MASTER running a solo adventure. Your primary role is to:
 1. ACKNOWLEDGE what the player does
@@ -47,6 +48,13 @@ DUNGEON MASTER INTERVENTIONS:
 - If story stalls: Introduce unexpected events
 - If tension drops: Add time limits, pursuing enemies, or environmental dangers
 - If player repeats actions: Show escalating consequences
+
+DEATH & CONSEQUENCES:
+- Player actions can lead to death through reckless behavior
+- Death should be dramatic and educational - show why the action was fatal
+- Always provide a clear restart option after death
+- Resurrection/revival should acknowledge lessons learned from failure
+- Use death as a teaching tool, not just punishment
 
 CONTENT GUIDELINES:
 - Family-friendly adventure content
@@ -145,6 +153,25 @@ MANDATORY: Show change and progression
 - Never just repeat the previous scene
 - Force player engagement with new developments`;
 
+    case 'death':
+      return `PLAYER DEATH: Fatal Consequences
+MANDATORY: Start with "You [their fatal action]..."
+- Describe the action that led to death in vivid detail
+- Show the immediate cause of death (injury, trap, environment)
+- Create a dramatic death scene with proper weight and consequence
+- Include the character's final moments and thoughts
+- End with clear indication that the story must restart
+- Provide "restart" choice to begin the adventure again`;
+
+    case 'resurrection':
+      return `PLAYER RESURRECTION: Second Chance
+MANDATORY: Start with "As darkness fades..." or "You awaken..." or "Life returns..."
+- Describe the revival process in mystical/magical terms
+- Acknowledge the previous death and what was learned
+- Show how the world/environment has reset or changed
+- Include any new knowledge or abilities gained from the experience
+- Generate choices that incorporate lessons learned from failure`;
+
     default:
       return 'PLAYER ACTION: Acknowledge their specific action and show its consequences.';
   }
@@ -152,6 +179,11 @@ MANDATORY: Show change and progression
 
 export class StoryPromptService {
   private storyStateTrackers: Map<string, StoryStateTracker> = new Map();
+  private scenarioService: ScenarioProgressionService;
+
+  constructor() {
+    this.scenarioService = new ScenarioProgressionService();
+  }
 
   /**
    * Get or create story state tracker for a story
@@ -470,5 +502,101 @@ Remember: You are an active Dungeon Master, not a passive narrator. Make things 
   getStoryState(storyId: string): any {
     const storyStateTracker = this.getStateTracker(storyId);
     return storyStateTracker.getState();
+  }
+
+  /**
+   * Generate enhanced prompt with scenario context
+   */
+  async generateScenarioAwarePrompt(
+    storyId: string,
+    scenarioId: string,
+    userQuery: string,
+    playerProgress: PlayerProgress,
+    conversationHistory: Array<{ role: string; content: string }> = [],
+    actionType?: string
+  ): Promise<{
+    enhancedPrompt: string;
+    contextUsed: Array<{ content: string; metadata: any }>;
+    scenarioEvaluation: any;
+  }> {
+    // Get standard RAG context
+    const { enhancedPrompt: ragPrompt, contextUsed } = await this.generateEnhancedPrompt(
+      storyId,
+      userQuery,
+      conversationHistory,
+      actionType
+    );
+
+    // Get scenario-specific context
+    const scenarioContext = await this.scenarioService.generateScenarioContext(
+      storyId,
+      scenarioId,
+      playerProgress
+    );
+
+    // Evaluate the player's action
+    const scenarioEvaluation = await this.scenarioService.evaluateAction(
+      storyId,
+      scenarioId,
+      userQuery,
+      playerProgress
+    );
+
+    // Create scenario-aware prompt
+    const scenarioPrompt = `${ragPrompt}
+
+SCENARIO CONTEXT:
+${scenarioContext}
+
+ACTION EVALUATION:
+- Success: ${scenarioEvaluation.success}
+- Failure: ${scenarioEvaluation.failure}
+- Death: ${scenarioEvaluation.death}
+- Scenario Complete: ${scenarioEvaluation.scenario_complete}
+- Beat Complete: ${scenarioEvaluation.beat_complete}
+- Story Complete: ${scenarioEvaluation.story_complete}
+- Feedback: ${scenarioEvaluation.feedback}
+- Consequences: ${scenarioEvaluation.consequences}
+${scenarioEvaluation.next_scenario ? `- Next Scenario: ${scenarioEvaluation.next_scenario}` : ''}
+
+SCENARIO GUIDANCE:
+${scenarioEvaluation.death ? 'PLAYER HAS DIED - Generate death scene and restart option' : ''}
+${scenarioEvaluation.scenario_complete ? 'SCENARIO COMPLETE - Generate completion narrative and transition' : ''}
+${scenarioEvaluation.beat_complete ? 'STORY BEAT COMPLETE - Major milestone achieved' : ''}
+${scenarioEvaluation.story_complete ? 'STORY COMPLETE - Generate victory celebration' : ''}
+
+Remember: This is a structured adventure with clear objectives and consequences. Guide the player according to the scenario parameters.`;
+
+    return {
+      enhancedPrompt: scenarioPrompt,
+      contextUsed,
+      scenarioEvaluation
+    };
+  }
+
+  /**
+   * Handle death and restart scenario
+   */
+  async handlePlayerDeath(
+    storyId: string,
+    scenarioId: string,
+    playerProgress: PlayerProgress
+  ): Promise<{
+    restart_scenario: string;
+    restart_beat: string;
+    reset_progress: boolean;
+  }> {
+    return await this.scenarioService.handleDeath(storyId, scenarioId, playerProgress);
+  }
+
+  /**
+   * Get next scenario in progression
+   */
+  async getNextScenario(
+    storyId: string,
+    currentScenarioId: string,
+    playerProgress: PlayerProgress
+  ): Promise<string | null> {
+    return await this.scenarioService.getNextScenario(storyId, currentScenarioId, playerProgress);
   }
 }

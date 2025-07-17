@@ -1,0 +1,33 @@
+{
+  "characters": [
+    {
+      "id": "echo",
+      "name": "Echo",
+      "type": "guide",
+      "description": "A mysterious voice that seems to emanate from the walls themselves. Echo appears to be some kind of magical construct or spirit bound to this training chamber, designed to guide adventurers through their trials.",
+      "personality": "Helpful but cryptic, encouraging without giving away solutions. Speaks with a slightly echoing quality and seems amused by clever discoveries. Takes pride in watching adventurers grow through challenges.",
+      "abilities": ["Omnipresent awareness within the chamber", "Ability to sense player actions", "Knowledge of chamber secrets", "Gentle guidance provision"],
+      "location": "Training Chamber",
+      "relationships": {
+        "chamber_creators": "Faithful servant, follows their original programming to help adventurers learn"
+      },
+      "dialogue_style": "Speaks in a resonant, slightly echoing voice. Uses encouraging phrases like 'Interesting approach...' and 'The chamber rewards the observant...' Often poses guiding questions rather than giving direct answers.",
+      "story_role": "Tutorial guide who provides hints when players are stuck, celebrates discoveries, and encourages thorough exploration without spoiling puzzles"
+    },
+    {
+      "id": "chamber_spirit",
+      "name": "The Chamber's Memory",
+      "type": "environmental",
+      "description": "Not a character in the traditional sense, but the accumulated knowledge and energy of countless adventurers who have passed through this chamber. Manifests as fleeting impressions, whispered insights, and intuitive nudges.",
+      "personality": "Ancient, wise, and patient. Represents the collective experience of all who have solved this puzzle before.",
+      "abilities": ["Provides intuitive insights", "Manifests as environmental clues", "Guides through subtle environmental changes"],
+      "location": "Training Chamber",
+      "relationships": {
+        "echo": "Complementary presence, provides context for Echo's guidance",
+        "previous_adventurers": "Carries memories and wisdom of all who came before"
+      },
+      "dialogue_style": "Communicates through environmental storytelling rather than direct speech - subtle changes in torch brightness, stone warmth, or air currents that guide attention.",
+      "story_role": "Provides environmental feedback and subtle guidance through non-verbal cues, reinforcing player discoveries and hinting at overlooked details"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "locations": [
+    {
+      "id": "training_chamber",
+      "name": "The Training Chamber",
+      "type": "locked_room",
+      "description": "A circular stone chamber approximately twenty feet in diameter, designed as an ancient training facility. The room features weathered stone blocks fitted together with masterful craftsmanship, and four iron torch sconces provide flickering illumination that creates dancing shadows across the walls.",
+      "atmosphere": "Mysterious yet purposeful, with an air of anticipation. The room feels like a test waiting to be solved, filled with the accumulated wisdom of countless adventurers who came before.",
+      "notable_features": [
+        "Heavy oak door with iron handle and visible keyhole",
+        "Four iron torch sconces mounted at cardinal directions",
+        "Weathered stone blocks with varying textures and markings",
+        "Circular floor pattern with subtle grooves and worn areas",
+        "Faint scratches and marks left by previous adventurers",
+        "One loose stone in the eastern wall, barely noticeable",
+        "Slightly different torch flame in the northern sconce",
+        "Worn area on the floor near the western wall",
+        "Subtle arrow etched into the stone near the southern torch"
+      ],
+      "connections": {
+        "outside": "Locked door - requires key to exit"
+      },
+      "inhabitants": ["Echo", "Chamber's Memory"],
+      "dangers": "None - this is a safe training environment designed for learning",
+      "story_significance": "The core puzzle location where players must discover observation skills and learn to examine their environment carefully. The chamber teaches the fundamental adventure skill of thorough exploration."
+    }
+  ]
+}

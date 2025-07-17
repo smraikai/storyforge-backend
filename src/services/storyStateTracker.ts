@@ -6,6 +6,12 @@ interface StoryState {
   lastNarratives: string[];
   sceneCounter: number;
   lastSignificantEvent: string | null;
+  playerStatus: {
+    alive: boolean;
+    deathCount: number;
+    lastDeathReason: string | null;
+    hasExperiencedDeath: boolean;
+  };
   playerChoiceHistory: Array<{
     choice: string;
     timestamp: number;
@@ -17,6 +23,7 @@ interface StoryState {
     plotPointsRevealed: string[];
     conflictsIntroduced: string[];
     conflictsResolved: string[];
+    deathEvents: string[];
   };
 }
 
@@ -34,13 +41,20 @@ export class StoryStateTracker {
       lastNarratives: [],
       sceneCounter: 0,
       lastSignificantEvent: null,
+      playerStatus: {
+        alive: true,
+        deathCount: 0,
+        lastDeathReason: null,
+        hasExperiencedDeath: false
+      },
       playerChoiceHistory: [],
       storyBeats: {
         introducedCharacters: [],
         visitedLocations: [],
         plotPointsRevealed: [],
         conflictsIntroduced: [],
-        conflictsResolved: []
+        conflictsResolved: [],
+        deathEvents: []
       }
     };
   }
@@ -361,5 +375,124 @@ ${interventionPrompts.map(prompt => `- ${prompt}`).join('\n')}`;
     if (array.length > maxLength) {
       array.shift();
     }
+  }
+
+  /**
+   * Check if the user's action should trigger death
+   */
+  checkForDeathTriggers(userAction: string): {
+    isDeath: boolean;
+    deathType: string | null;
+    deathReason: string | null;
+  } {
+    const actionLower = userAction.toLowerCase();
+    
+    // Check for reckless torch actions
+    const torchDeathTriggers = ['smash torch', 'break torch', 'destroy torch', 'hit torch', 'kick torch'];
+    if (torchDeathTriggers.some(trigger => actionLower.includes(trigger))) {
+      return {
+        isDeath: true,
+        deathType: 'reckless_torch_handling',
+        deathReason: 'Reckless torch manipulation caused a fatal fire'
+      };
+    }
+
+    // Check for dangerous stone actions
+    const stoneDeathTriggers = ['smash stone', 'break wall', 'destroy stones', 'hit wall', 'punch stones'];
+    if (stoneDeathTriggers.some(trigger => actionLower.includes(trigger))) {
+      return {
+        isDeath: true,
+        deathType: 'dangerous_stone_collapse',
+        deathReason: 'Reckless stone manipulation caused a fatal collapse'
+      };
+    }
+
+    // Check for panic actions
+    const panicDeathTriggers = ['panic', 'desperate', 'scream', 'give up', 'break down'];
+    if (panicDeathTriggers.some(trigger => actionLower.includes(trigger))) {
+      return {
+        isDeath: true,
+        deathType: 'panic_induced_death',
+        deathReason: 'Panic led to fatal poor decisions'
+      };
+    }
+
+    // Check for exhaustion (time-based)
+    if (this.state.sceneCounter > 15) {
+      return {
+        isDeath: true,
+        deathType: 'exhaustion_death',
+        deathReason: 'Exhaustion and time pressure led to collapse'
+      };
+    }
+
+    return {
+      isDeath: false,
+      deathType: null,
+      deathReason: null
+    };
+  }
+
+  /**
+   * Process player death
+   */
+  recordPlayerDeath(deathType: string, deathReason: string): void {
+    this.state.playerStatus.alive = false;
+    this.state.playerStatus.deathCount++;
+    this.state.playerStatus.lastDeathReason = deathReason;
+    this.state.playerStatus.hasExperiencedDeath = true;
+    this.state.storyBeats.deathEvents.push(`${deathType}: ${deathReason}`);
+    this.state.tension = 'critical';
+  }
+
+  /**
+   * Process player resurrection
+   */
+  recordPlayerResurrection(): void {
+    this.state.playerStatus.alive = true;
+    this.state.currentScene = 'post_resurrection';
+    this.state.tension = 'medium';
+    this.state.momentum = 'steady';
+  }
+
+  /**
+   * Check if player needs resurrection
+   */
+  needsResurrection(): boolean {
+    return !this.state.playerStatus.alive;
+  }
+
+  /**
+   * Reset story state for restart
+   */
+  resetForRestart(): void {
+    const deathCount = this.state.playerStatus.deathCount;
+    const hasExperiencedDeath = this.state.playerStatus.hasExperiencedDeath;
+    const deathEvents = [...this.state.storyBeats.deathEvents];
+    
+    this.state = {
+      currentScene: 'introduction',
+      tension: 'low',
+      momentum: 'slow',
+      lastActions: [],
+      lastNarratives: [],
+      sceneCounter: 0,
+      lastSignificantEvent: null,
+      playerStatus: {
+        alive: true,
+        deathCount,
+        lastDeathReason: null,
+        hasExperiencedDeath
+      },
+      playerChoiceHistory: [],
+      storyBeats: {
+        introducedCharacters: [],
+        visitedLocations: [],
+        plotPointsRevealed: [],
+        conflictsIntroduced: [],
+        conflictsResolved: [],
+        deathEvents
+      }
+    };
   }
 }

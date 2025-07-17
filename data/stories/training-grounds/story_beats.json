@@ -1,0 +1,94 @@
+{
+  "story_beats": [
+    {
+      "id": "act_1_trapped",
+      "name": "Trapped in the Chamber",
+      "type": "chapter",
+      "description": "The player awakens in a locked stone chamber and must come to terms with their situation. This act establishes the core challenge and teaches the fundamental lesson of careful observation over panic.",
+      "story_significance": "Introduction and setup - establishes the puzzle premise and core learning objectives",
+      "objectives": [
+        "Acknowledge the locked door situation",
+        "Begin systematic exploration of the chamber",
+        "Overcome initial panic or confusion",
+        "Learn to observe rather than act rashly"
+      ],
+      "success_criteria": {
+        "primary": "Player demonstrates calm exploration and discovers at least one room feature",
+        "secondary": ["No death from panic", "Asks Echo for guidance appropriately", "Shows curiosity about chamber details"]
+      },
+      "failure_conditions": {
+        "death_triggers": ["panic", "desperate", "give up"],
+        "timeout": "excessive_time_without_progress",
+        "abandonment": "player_requests_exit"
+      },
+      "narrative_themes": ["curiosity", "patience", "observation", "problem_solving"],
+      "key_npcs": ["Echo"],
+      "required_discoveries": ["door_is_locked", "chamber_has_features", "echo_is_helper"],
+      "estimated_duration": "5-8 minutes"
+    },
+    {
+      "id": "act_2_investigation",
+      "name": "Systematic Investigation",
+      "type": "chapter", 
+      "description": "The player learns to examine the chamber methodically, discovering the subtle clues that will lead to the solution. This act teaches patience, attention to detail, and logical deduction.",
+      "story_significance": "Core puzzle mechanics - teaches systematic investigation and clue recognition",
+      "objectives": [
+        "Examine all major chamber features systematically",
+        "Identify the differences in torch behavior",
+        "Discover the loose stone in the eastern wall",
+        "Recognize the floor patterns and markings"
+      ],
+      "success_criteria": {
+        "primary": "Player discovers either the torch anomaly or the loose stone",
+        "secondary": ["Methodical examination approach", "Asks meaningful questions", "Shows understanding of cause-and-effect"]
+      },
+      "failure_conditions": {
+        "death_triggers": ["smash torch", "break torch", "destroy torch", "smash stone", "break wall", "destroy stones"],
+        "timeout": "exhaustion_after_excessive_attempts",
+        "frustration": "repeated_failed_attempts_without_learning"
+      },
+      "narrative_themes": ["investigation", "deduction", "patience", "attention_to_detail"],
+      "key_npcs": ["Echo", "Chamber's Memory"],
+      "required_discoveries": ["torch_difference", "stone_looseness", "floor_patterns"],
+      "estimated_duration": "8-12 minutes"
+    },
+    {
+      "id": "act_3_solution",
+      "name": "Breakthrough and Resolution",
+      "type": "chapter",
+      "description": "The player applies their discoveries to solve the puzzle, retrieving the hidden key and achieving freedom. This act rewards careful observation and teaches the satisfaction of logical problem-solving.",
+      "story_significance": "Resolution and victory - demonstrates mastery of observation and logical thinking",
+      "objectives": [
+        "Apply discovered clues to access the key",
+        "Successfully retrieve the hidden key",
+        "Unlock the door using the key",
+        "Achieve victory through learned skills"
+      ],
+      "success_criteria": {
+        "primary": "Player successfully unlocks the door and escapes",
+        "secondary": ["Demonstrates learned skills", "Shows confidence in approach", "Acknowledges the learning experience"]
+      },
+      "failure_conditions": {
+        "death_triggers": ["panic", "desperate", "destructive_actions"],
+        "wrong_approach": "attempts_to_use_key_incorrectly",
+        "final_frustration": "gives_up_at_final_moment"
+      },
+      "narrative_themes": ["achievement", "mastery", "confidence", "problem_solving"],
+      "key_npcs": ["Echo"],
+      "required_discoveries": ["key_location", "key_function", "door_mechanism"],
+      "estimated_duration": "3-5 minutes"
+    }
+  ],
+  "beat_progression": {
+    "linear": true,
+    "completion_required": true,
+    "death_handling": "restart_current_beat",
+    "checkpoint_system": "beat_boundaries"
+  },
+  "overall_learning_objectives": [
+    "Patience and systematic thinking overcome panic",
+    "Careful observation reveals hidden solutions", 
+    "Logical deduction leads to success",
+    "Reckless actions have dangerous consequences"
+  ]
+}

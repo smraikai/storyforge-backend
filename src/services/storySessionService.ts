@@ -243,4 +243,48 @@ ${conversationText}`;
       [sessionId, userId]
     );
   }
+
+  async restartSession(sessionId: string, userId: string): Promise<StorySession> {
+    const db = getDatabase();
+    
+    // Verify user owns this session
+    const session = await this.getSession(sessionId, userId);
+    if (!session) {
+      throw new Error('Session not found or access denied');
+    }
+
+    // Delete all messages in this session
+    await db.query(
+      'DELETE FROM session_messages WHERE session_id = $1',
+      [sessionId]
+    );
+
+    // Reset session state
+    const result = await db.query(
+      `UPDATE story_sessions 
+       SET status = 'active',
+           story_summary = NULL,
+           key_events = '[]'::json,
+           character_relationships = '{}'::json,
+           total_messages = 0,
+           last_message_at = CURRENT_TIMESTAMP,
+           started_at = CURRENT_TIMESTAMP,
+           completed_at = NULL,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1 AND user_id = $2
+       RETURNING *`,
+      [sessionId, userId]
+    );
+
+    // Add restart notification message
+    await this.addMessage(
+      sessionId,
+      userId,
+      'system',
+      'Story has been restarted. You have learned from your previous experience.',
+      { restart: true, timestamp: new Date().toISOString() }
+    );
+
+    return result.rows[0];
+  }
 }
