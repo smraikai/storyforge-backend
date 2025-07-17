@@ -76,6 +76,24 @@ JSON RESPONSE FORMAT:
     "location": "current location",
     "tension": "low/medium/high/critical",
     "momentum": "stalled/slow/steady/fast"
+  },
+  "inventory_changes": {
+    "items_gained": [
+      {
+        "id": "item_template_id",
+        "name": "item name",
+        "quantity": 1,
+        "source": "description of how obtained"
+      }
+    ],
+    "items_lost": [
+      {
+        "id": "inventory_item_id",
+        "name": "item name", 
+        "quantity": 1,
+        "reason": "description of how lost"
+      }
+    ]
   }
 }`;
 
@@ -360,6 +378,16 @@ Content: ${loreEntry.content}`,
       availableItems: string[];
       suggestions: string[];
     } | undefined;
+    
+    // Get available item templates for this story
+    const availableItems = this.inventoryService.getStoryItems(storyId);
+    let availableItemsContext = '';
+    if (availableItems.length > 0) {
+      availableItemsContext = `\n\nAVAILABLE STORY ITEMS:\n`;
+      availableItems.forEach(item => {
+        availableItemsContext += `- ${item.id}: ${item.name} (${item.type}) - ${item.description}\n`;
+      });
+    }
 
     if (userId && sessionId) {
       console.log('🎒 Loading inventory context for user:', userId, 'session:', sessionId);
@@ -408,7 +436,7 @@ RELEVANT STORY CONTEXT:
 ${contextString}
 
 RECENT EVENTS (for continuity):
-${conversationString}${inventoryContext}
+${conversationString}${inventoryContext}${availableItemsContext}
 
 DUNGEON MASTER CHECKLIST:
 ✓ Did you start with "You [player's action]..."?
@@ -424,7 +452,15 @@ INVENTORY RULES:
 - If a player tries to use an item they don't have, gracefully redirect them to available alternatives
 - When describing actions, reference items the player actually possesses
 - Suggest actions that align with their current inventory
-- Use inventory items to create new story opportunities`;
+- Use inventory items to create new story opportunities
+
+INVENTORY MANAGEMENT:
+- When players acquire items, include them in "items_gained" with the correct template ID
+- When players lose/use/consume items, include them in "items_lost" 
+- Match item IDs to the story's item templates (torch, wooden_sword, health_potion, etc.)
+- Only add items that exist in the current story's item templates
+- Track quantity changes accurately (gaining 1 torch, losing 2 arrows, etc.)
+- Provide clear source/reason descriptions for inventory changes`;
 
     return {
       enhancedPrompt: enhancedPrompt.trim(),
