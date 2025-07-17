@@ -119,8 +119,20 @@ export class GeminiRAGService {
                       properties: {
                         id: { type: 'string' },
                         name: { type: 'string' },
+                        description: { type: 'string' },
                         quantity: { type: 'number', default: 1 },
-                        source: { type: 'string' }
+                        source: { type: 'string' },
+                        rarity: { 
+                          type: 'string', 
+                          enum: ['common', 'uncommon', 'rare', 'epic', 'legendary'],
+                          default: 'common'
+                        },
+                        category: { type: 'string' },
+                        magical: { type: 'boolean', default: false },
+                        properties: { 
+                          type: 'array', 
+                          items: { type: 'string' }
+                        }
                       },
                       required: ['id', 'name']
                     }

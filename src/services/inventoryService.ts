@@ -5,7 +5,8 @@ import {
   InventoryAction, 
   InventoryActionResult,
   StoryItemTemplate,
-  InventoryValidation
+  InventoryValidation,
+  DynamicItemSpec
 } from '../types/inventory';
 import fs from 'fs/promises';
 import path from 'path';
@@ -179,14 +180,31 @@ export class InventoryService {
    */
   async saveInventory(inventory: PlayerInventory): Promise<void> {
     try {
+      // Clean up inventory items to remove undefined values
+      const cleanedInventory = {
+        ...inventory,
+        items: inventory.items.map(item => {
+          const cleanedItem: any = { ...item };
+          // Remove undefined properties
+          Object.keys(cleanedItem).forEach(key => {
+            if (cleanedItem[key] === undefined) {
+              delete cleanedItem[key];
+            }
+          });
+          return cleanedItem;
+        }),
+        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        version: inventory.version + 1
+      };
+
+      // Remove undefined top-level properties
+      if (cleanedInventory.equippedWeapon === undefined) delete cleanedInventory.equippedWeapon;
+      if (cleanedInventory.equippedArmor === undefined) delete cleanedInventory.equippedArmor;
+
       await this.firestore
         .collection('inventories')
         .doc(`${inventory.userId}_${inventory.sessionId}`)
-        .set({
-          ...inventory,
-          lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
-          version: inventory.version + 1
-        });
+        .set(cleanedInventory);
     } catch (error) {
       console.error('❌ Error saving inventory:', error);
       throw error;
@@ -535,5 +553,185 @@ export class InventoryService {
       item.type.toLowerCase().includes(queryLower) ||
       item.properties.some(prop => prop.toLowerCase().includes(queryLower))
     );
+  }
+
+  /**
+   * Create dynamic item from AI-generated specifications
+   */
+  private createDynamicItem(itemSpec: DynamicItemSpec, storyId: string): InventoryItem {
+    // Generate unique ID for dynamic item
+    const id = `dynamic_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Determine item type based on context clues
+    const itemType = this.determineItemType(itemSpec.name, itemSpec.description || '');
+    
+    // Generate stats based on context and rarity
+    const stats = this.generateItemStats(itemSpec, itemType);
+    
+    return {
+      id,
+      name: itemSpec.name,
+      description: itemSpec.description || `A ${itemSpec.name} discovered during your adventure.`,
+      type: itemType,
+      category: itemSpec.category || this.getCategoryFromType(itemType),
+      rarity: itemSpec.rarity || 'common',
+      quantity: itemSpec.quantity || 1,
+      maxStack: itemSpec.maxStack || (itemType === 'consumable' ? 10 : 1),
+      value: stats.value,
+      weight: stats.weight,
+      damage: stats.damage,
+      defense: stats.defense,
+      healing: stats.healing,
+      durability: stats.durability,
+      maxDurability: stats.maxDurability,
+      magical: itemSpec.magical || false,
+      cursed: itemSpec.cursed || false,
+      properties: itemSpec.properties || [],
+      usableInCombat: itemSpec.usableInCombat || false,
+      consumable: itemType === 'consumable',
+      equipable: itemType === 'weapon' || itemType === 'armor',
+      iconUrl: itemSpec.iconUrl || '',
+      source: itemSpec.source || 'found_in_world',
+      storyId,
+      acquiredAt: new Date()
+    };
+  }
+
+  /**
+   * Determine item type from name and description
+   */
+  private determineItemType(name: string, description: string): InventoryItem['type'] {
+    const text = (name + ' ' + description).toLowerCase();
+    
+    if (text.includes('sword') || text.includes('blade') || text.includes('dagger') || 
+        text.includes('axe') || text.includes('bow') || text.includes('staff') ||
+        text.includes('weapon') || text.includes('sharp') || text.includes('blade')) {
+      return 'weapon';
+    }
+    
+    if (text.includes('armor') || text.includes('shield') || text.includes('helm') ||
+        text.includes('breastplate') || text.includes('gauntlet') || text.includes('boots') ||
+        text.includes('protection') || text.includes('defend')) {
+      return 'armor';
+    }
+    
+    if (text.includes('potion') || text.includes('elixir') || text.includes('drink') ||
+        text.includes('consume') || text.includes('heal') || text.includes('restore')) {
+      return 'consumable';
+    }
+    
+    if (text.includes('tool') || text.includes('hammer') || text.includes('pick') ||
+        text.includes('rope') || text.includes('utility') || text.includes('device')) {
+      return 'tool';
+    }
+    
+    if (text.includes('gem') || text.includes('jewel') || text.includes('gold') ||
+        text.includes('treasure') || text.includes('valuable') || text.includes('precious')) {
+      return 'treasure';
+    }
+    
+    if (text.includes('key') || text.includes('letter') || text.includes('note') ||
+        text.includes('document') || text.includes('scroll') || text.includes('map') ||
+        text.includes('quest') || text.includes('important') || text.includes('tablet') ||
+        text.includes('rune') || text.includes('symbol')) {
+      return 'quest';
+    }
+    
+    return 'misc';
+  }
+
+  /**
+   * Generate item stats based on context and rarity
+   */
+  private generateItemStats(itemSpec: DynamicItemSpec, itemType: InventoryItem['type']): {
+    value: number;
+    weight: number;
+    damage: number;
+    defense: number;
+    healing: number;
+    durability: number;
+    maxDurability: number;
+  } {
+    const rarity = itemSpec.rarity || 'common';
+    const rarityMultiplier = {
+      'common': 1,
+      'uncommon': 1.5,
+      'rare': 2,
+      'epic': 3,
+      'legendary': 5
+    }[rarity] || 1;
+
+    // Base stats by item type
+    const baseStats = {
+      weapon: { value: 50, weight: 2.5, damage: 10, defense: 0, healing: 0, durability: 100 },
+      armor: { value: 75, weight: 5, damage: 0, defense: 10, healing: 0, durability: 150 },
+      consumable: { value: 25, weight: 0.5, damage: 0, defense: 0, healing: 20, durability: 1 },
+      tool: { value: 30, weight: 1.5, damage: 2, defense: 0, healing: 0, durability: 80 },
+      treasure: { value: 100, weight: 1, damage: 0, defense: 0, healing: 0, durability: 999 },
+      quest: { value: 0, weight: 0.1, damage: 0, defense: 0, healing: 0, durability: 999 },
+      misc: { value: 10, weight: 1, damage: 0, defense: 0, healing: 0, durability: 50 }
+    }[itemType];
+
+    // Apply rarity multiplier and add some randomness
+    const variance = 0.2; // ±20% variance
+    const randomFactor = () => 1 + (Math.random() - 0.5) * variance;
+
+    return {
+      value: Math.round(baseStats.value * rarityMultiplier * randomFactor()),
+      weight: Math.round(baseStats.weight * randomFactor() * 10) / 10,
+      damage: Math.round(baseStats.damage * rarityMultiplier * randomFactor()),
+      defense: Math.round(baseStats.defense * rarityMultiplier * randomFactor()),
+      healing: Math.round(baseStats.healing * rarityMultiplier * randomFactor()),
+      durability: Math.round(baseStats.durability * randomFactor()),
+      maxDurability: Math.round(baseStats.durability * randomFactor())
+    };
+  }
+
+  /**
+   * Get category from item type
+   */
+  private getCategoryFromType(itemType: InventoryItem['type']): string {
+    const categoryMap = {
+      weapon: 'weapons',
+      armor: 'armor',
+      consumable: 'consumables',
+      tool: 'tools',
+      treasure: 'treasures',
+      quest: 'quest_items',
+      misc: 'miscellaneous'
+    };
+    return categoryMap[itemType] || 'miscellaneous';
+  }
+
+  /**
+   * Add dynamic item to inventory (for AI-generated items)
+   */
+  async addDynamicItem(userId: string, sessionId: string, itemSpec: DynamicItemSpec): Promise<InventoryActionResult> {
+    const inventory = await this.getPlayerInventory(userId, sessionId);
+    if (!inventory) {
+      throw new Error('Inventory not found');
+    }
+
+    // Create dynamic item
+    const dynamicItem = this.createDynamicItem(itemSpec, inventory.storyId);
+    
+    const changes = {
+      itemsAdded: [dynamicItem] as InventoryItem[],
+      itemsRemoved: [] as InventoryItem[],
+      itemsModified: [] as InventoryItem[]
+    };
+
+    // Add to inventory
+    inventory.items.push(dynamicItem);
+    inventory.currentWeight += dynamicItem.weight * dynamicItem.quantity;
+
+    await this.saveInventory(inventory);
+
+    return {
+      success: true,
+      inventory,
+      changes,
+      messages: [`Found ${dynamicItem.name}!`],
+    };
   }
 }

@@ -114,3 +114,18 @@ export interface InventoryValidation {
   reasons: string[];
   suggestions: string[];
 }
+
+export interface DynamicItemSpec {
+  name: string;
+  description: string;
+  category?: string;
+  rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  quantity?: number;
+  maxStack?: number;
+  magical?: boolean;
+  cursed?: boolean;
+  properties?: string[];
+  usableInCombat?: boolean;
+  iconUrl?: string;
+  source?: string;
+}

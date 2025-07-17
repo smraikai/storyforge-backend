@@ -83,13 +83,37 @@ router.post('/:storyId/generate-rag', async (req, res) => {
         if (result.inventoryChanges.items_gained && result.inventoryChanges.items_gained.length > 0) {
           for (const item of result.inventoryChanges.items_gained) {
             console.log(`📦 Adding item to inventory: ${item.name} (${item.quantity || 1})`);
-            await inventoryService.addItem(
-              userId,
-              sessionId,
-              item.id,
-              item.quantity || 1,
-              item.source || 'story_event'
-            );
+            
+            // Check if this is a template item (predefined) or dynamic item (AI-generated)
+            const existingTemplate = inventoryService.getStoryItems(storyId)
+              .find(template => template.id === item.id);
+            
+            if (existingTemplate) {
+              // Use existing template system
+              await inventoryService.addItem(
+                userId,
+                sessionId,
+                item.id,
+                item.quantity || 1,
+                item.source || 'story_event'
+              );
+            } else {
+              // Create dynamic item from AI specifications
+              const dynamicItemSpec = {
+                name: item.name,
+                description: item.description || `A ${item.name} discovered during your adventure.`,
+                quantity: item.quantity || 1,
+                source: item.source || 'found_in_world',
+                // Extract additional properties from the item if provided
+                rarity: item.rarity || 'common',
+                category: item.category,
+                magical: item.magical || false,
+                properties: item.properties || []
+              };
+              
+              console.log(`🎲 Creating dynamic item: ${item.name}`);
+              await inventoryService.addDynamicItem(userId, sessionId, dynamicItemSpec);
+            }
           }
         }
 

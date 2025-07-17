@@ -463,12 +463,25 @@ INVENTORY RULES:
 - Use inventory items to create new story opportunities
 
 INVENTORY MANAGEMENT:
-- When players acquire items, include them in "items_gained" with the correct template ID
-- When players lose/use/consume items, include them in "items_lost" 
-- Match item IDs to the story's item templates (torch, wooden_sword, health_potion, etc.)
-- Only add items that exist in the current story's item templates
+- When players acquire items, include them in "items_gained" with appropriate details
+- For TEMPLATE ITEMS (predefined): Use the exact template ID from the story's item templates
+- For DYNAMIC ITEMS (newly discovered): Create a unique ID like "dynamic_[item_name]" and provide full details
+- Dynamic items should have: name, description, rarity, category, magical properties, source
+- When players lose/use/consume items, include them in "items_lost"
 - Track quantity changes accurately (gaining 1 torch, losing 2 arrows, etc.)
-- Provide clear source/reason descriptions for inventory changes`;
+- Provide clear source/reason descriptions for inventory changes
+
+DYNAMIC ITEM GENERATION:
+- When players discover new items in the world, create them dynamically
+- Base rarity on context: common items in safe areas, rare items in dangerous places
+- Categories: weapon, armor, consumable, tool, treasure, quest, misc
+- Include vivid descriptions that match the story setting
+- Magical properties should be contextual and balanced
+- Source should describe exactly how the item was obtained
+
+EXAMPLES:
+Template item: {"id": "torch", "name": "Torch", "quantity": 1, "source": "found on wall"}
+Dynamic item: {"id": "dynamic_crystal_shard", "name": "Crystal Shard", "description": "A glowing blue crystal that pulses with ancient magic", "rarity": "rare", "category": "treasure", "magical": true, "properties": ["glowing", "magical_energy"], "source": "discovered in the ancient ruins"}`;
 
     return {
       enhancedPrompt: enhancedPrompt.trim(),
