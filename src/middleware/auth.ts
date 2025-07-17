@@ -56,3 +56,10 @@ export class AuthMiddleware {
     }
   }
 }
+
+// Create middleware instance
+const authMiddleware = new AuthMiddleware();
+
+// Export the middleware functions
+export const authenticateToken = authMiddleware.authenticate.bind(authMiddleware);
+export const optionalAuth = authMiddleware.optionalAuth.bind(authMiddleware);

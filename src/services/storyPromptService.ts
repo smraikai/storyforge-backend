@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs/promises';
+import { InventoryService } from './inventoryService';
 // Removed complex story progression services for sandbox approach
 
 const UNIFIED_SYSTEM_PROMPT = `You are an expert DUNGEON MASTER running a solo adventure. Your primary role is to:
@@ -141,9 +142,11 @@ MANDATORY: Show change and progression
 
 export class StoryPromptService {
   // Simplified for sandbox approach - removed complex state tracking
+  private inventoryService: InventoryService;
   
   constructor() {
     // Simplified constructor
+    this.inventoryService = new InventoryService();
   }
 
   /**
@@ -323,10 +326,18 @@ Content: ${loreEntry.content}`,
     storyId: string,
     userQuery: string,
     conversationHistory: Array<{ role: string; content: string }> = [],
-    actionType?: string
+    actionType?: string,
+    userId?: string,
+    sessionId?: string
   ): Promise<{
     enhancedPrompt: string;
     contextUsed: Array<{ content: string; metadata: any }>;
+    inventoryValidation?: {
+      hasRequiredItems: boolean;
+      missingItems: string[];
+      availableItems: string[];
+      suggestions: string[];
+    };
   }> {
     const storyContext = await this.searchStoryContext(storyId, userQuery, 5);
     // Removed state tracker for sandbox approach
@@ -340,6 +351,44 @@ Content: ${loreEntry.content}`,
 
     // Create action type context
     const actionTypeContext = actionType ? getActionTypeContext(actionType) : '';
+
+    // Get inventory context and validation
+    let inventoryContext = '';
+    let inventoryValidation: {
+      hasRequiredItems: boolean;
+      missingItems: string[];
+      availableItems: string[];
+      suggestions: string[];
+    } | undefined;
+
+    if (userId && sessionId) {
+      console.log('🎒 Loading inventory context for user:', userId, 'session:', sessionId);
+      try {
+        // Get inventory summary for context
+        const inventorySummary = await this.inventoryService.getInventorySummary(userId, sessionId);
+        inventoryContext = `\n\nPLAYER INVENTORY:\n${inventorySummary}`;
+        console.log('✅ Inventory summary loaded:', inventorySummary);
+
+        // Validate inventory for action-related items
+        const inventoryValidationResult = await this.validateInventoryForAction(userId, sessionId, userQuery);
+        inventoryValidation = inventoryValidationResult;
+        console.log('🔍 Inventory validation result:', inventoryValidationResult);
+
+        // Add inventory validation to context if there are issues
+        if (!inventoryValidationResult.hasRequiredItems) {
+          inventoryContext += `\n\nINVENTORY VALIDATION:\n`;
+          inventoryContext += `Missing Items: ${inventoryValidationResult.missingItems.join(', ')}\n`;
+          inventoryContext += `Available Items: ${inventoryValidationResult.availableItems.join(', ')}\n`;
+          inventoryContext += `Suggestions: ${inventoryValidationResult.suggestions.join('; ')}\n`;
+          console.log('❌ Player is missing required items:', inventoryValidationResult.missingItems);
+        }
+      } catch (error) {
+        console.error('❌ Error getting inventory context:', error);
+        inventoryContext = '\n\nINVENTORY: Unable to load inventory';
+      }
+    } else {
+      console.log('⚠️ No userId or sessionId provided - skipping inventory validation');
+    }
 
     // Removed story state tracking for sandbox approach
     // In sandbox mode, the LLM handles all story progression organically
@@ -359,7 +408,7 @@ RELEVANT STORY CONTEXT:
 ${contextString}
 
 RECENT EVENTS (for continuity):
-${conversationString}
+${conversationString}${inventoryContext}
 
 DUNGEON MASTER CHECKLIST:
 ✓ Did you start with "You [player's action]..."?
@@ -367,15 +416,23 @@ DUNGEON MASTER CHECKLIST:
 ✓ Did you advance the story forward?
 ✓ Did you create urgency or tension?
 ✓ Are your choices pushing the narrative forward?
+✓ Did you check if the player has required items for their action?
 
-Remember: You are an active Dungeon Master, not a passive narrator. Make things happen!`;
+Remember: You are an active Dungeon Master, not a passive narrator. Make things happen!
+
+INVENTORY RULES:
+- If a player tries to use an item they don't have, gracefully redirect them to available alternatives
+- When describing actions, reference items the player actually possesses
+- Suggest actions that align with their current inventory
+- Use inventory items to create new story opportunities`;
 
     return {
       enhancedPrompt: enhancedPrompt.trim(),
       contextUsed: storyContext.map(ctx => ({
         content: ctx.content,
         metadata: ctx.metadata
-      }))
+      })),
+      inventoryValidation
     };
   }
 
@@ -422,6 +479,134 @@ Remember: You are an active Dungeon Master, not a passive narrator. Make things 
     return selectedMessages
       .map(msg => `${msg.role === 'user' ? 'Player' : 'Narrator'}: ${msg.content}`)
       .join('\n');
+  }
+
+  /**
+   * Validate inventory for player action
+   */
+  private async validateInventoryForAction(userId: string, sessionId: string, userQuery: string): Promise<{
+    hasRequiredItems: boolean;
+    missingItems: string[];
+    availableItems: string[];
+    suggestions: string[];
+  }> {
+    try {
+      const queryLower = userQuery.toLowerCase();
+      
+      // Common item keywords and their alternatives
+      const itemKeywords = {
+        'sword': ['weapon', 'blade', 'dagger', 'knife'],
+        'axe': ['weapon', 'hatchet', 'tomahawk'],
+        'bow': ['weapon', 'crossbow', 'ranged'],
+        'arrow': ['projectile', 'bolt', 'ammunition'],
+        'shield': ['armor', 'protection', 'guard'],
+        'potion': ['consumable', 'elixir', 'flask', 'bottle'],
+        'rope': ['tool', 'cord', 'string'],
+        'torch': ['light', 'lantern', 'fire'],
+        'key': ['tool', 'opener'],
+        'map': ['navigation', 'chart', 'guide'],
+        'book': ['tome', 'scroll', 'text'],
+        'coin': ['gold', 'money', 'currency'],
+        'gem': ['jewel', 'treasure', 'stone'],
+        'food': ['ration', 'bread', 'meal'],
+        'water': ['drink', 'beverage', 'flask']
+      };
+
+      // Extract potential item references from user query
+      const referencedItems: string[] = [];
+      const missingItems: string[] = [];
+      
+      // Check for explicit item mentions
+      for (const [item, alternatives] of Object.entries(itemKeywords)) {
+        const itemPattern = new RegExp(`\\b(${item}|${alternatives.join('|')})\\b`, 'i');
+        if (itemPattern.test(queryLower)) {
+          referencedItems.push(item);
+          
+          // Check if player has this item or alternatives
+          const hasItem = await this.inventoryService.hasItem(userId, sessionId, item);
+          if (!hasItem) {
+            // Check for alternatives
+            let hasAlternative = false;
+            for (const alt of alternatives) {
+              if (await this.inventoryService.hasItem(userId, sessionId, alt)) {
+                hasAlternative = true;
+                break;
+              }
+            }
+            if (!hasAlternative) {
+              missingItems.push(item);
+            }
+          }
+        }
+      }
+
+      // Check for action-based item requirements
+      const actionItemMap = {
+        'attack': ['weapon', 'sword', 'axe', 'bow'],
+        'throw': ['weapon', 'stone', 'dagger', 'axe'],
+        'shoot': ['bow', 'crossbow', 'arrow'],
+        'cut': ['sword', 'knife', 'axe'],
+        'light': ['torch', 'lantern', 'fire'],
+        'climb': ['rope', 'grappling hook'],
+        'unlock': ['key', 'lockpick'],
+        'heal': ['potion', 'bandage', 'herb'],
+        'read': ['book', 'scroll', 'map'],
+        'drink': ['potion', 'water', 'flask'],
+        'eat': ['food', 'ration', 'fruit']
+      };
+
+      for (const [action, items] of Object.entries(actionItemMap)) {
+        if (queryLower.includes(action)) {
+          let hasRequiredItem = false;
+          for (const item of items) {
+            if (await this.inventoryService.hasItem(userId, sessionId, item)) {
+              hasRequiredItem = true;
+              break;
+            }
+          }
+          if (!hasRequiredItem) {
+            missingItems.push(...items.slice(0, 2)); // Add first 2 alternatives
+          }
+        }
+      }
+
+      // Get available items for suggestions
+      const availableItems = await this.inventoryService.findItems(userId, sessionId, '');
+      const availableItemNames = availableItems.map(item => item.name);
+
+      // Generate suggestions based on available items
+      const suggestions: string[] = [];
+      if (missingItems.length > 0 && availableItemNames.length > 0) {
+        suggestions.push(`You don't have ${missingItems.join(' or ')}, but you could try using your ${availableItemNames.slice(0, 3).join(', ')}`);
+        
+        // Suggest specific alternatives
+        const weaponItems = availableItems.filter(item => item.type === 'weapon');
+        if (weaponItems.length > 0 && missingItems.some(item => ['sword', 'axe', 'weapon'].includes(item))) {
+          suggestions.push(`Use your ${weaponItems[0].name} instead`);
+        }
+        
+        const toolItems = availableItems.filter(item => item.type === 'tool');
+        if (toolItems.length > 0 && missingItems.some(item => ['rope', 'torch', 'key'].includes(item))) {
+          suggestions.push(`Try using your ${toolItems[0].name}`);
+        }
+      }
+
+      return {
+        hasRequiredItems: missingItems.length === 0,
+        missingItems: [...new Set(missingItems)],
+        availableItems: availableItemNames,
+        suggestions
+      };
+
+    } catch (error) {
+      console.error('Error validating inventory for action:', error);
+      return {
+        hasRequiredItems: true, // Assume success if validation fails
+        missingItems: [],
+        availableItems: [],
+        suggestions: []
+      };
+    }
   }
 
   // Removed story state tracking methods for sandbox approach

@@ -2,10 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import newsRoutes from './routes/news';
 
-// Load environment variables
+// Load environment variables first
 dotenv.config();
+
+// Initialize Firebase Admin early
+import './config/firebase';
+
+import newsRoutes from './routes/news';
+import inventoryRoutes from './routes/inventory';
 
 // Express server setup
 const app = express();
@@ -35,6 +40,7 @@ app.use('/api/stories', require('./routes/stories'));
 app.use('/api/story', require('./routes/simpleStory'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/news', newsRoutes);
+app.use('/api/inventory', inventoryRoutes);
 
 // Error handling middleware
 app.use((err: Error, _: express.Request, res: express.Response, __: express.NextFunction) => {

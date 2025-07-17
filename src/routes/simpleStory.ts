@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { GeminiRAGService } from '../services/geminiRagService';
 import { StoryDiscoveryService } from '../services/storyDiscoveryService';
+import admin from '../config/firebase';
 
 const router = Router();
 const geminiRAG = new GeminiRAGService();
@@ -10,7 +11,7 @@ const storyDiscovery = new StoryDiscoveryService();
 router.post('/:storyId/generate-rag', async (req, res) => {
   try {
     const { storyId } = req.params;
-    const { userMessage, conversationHistory, actionType } = req.body;
+    const { userMessage, conversationHistory, actionType, sessionId } = req.body;
 
     // Validate story exists
     const storyExists = await storyDiscovery.storyExists(storyId);
@@ -29,11 +30,32 @@ router.post('/:storyId/generate-rag', async (req, res) => {
 
     console.log(`🎭 Processing RAG story request for ${storyId}:`, userMessage, actionType ? `(${actionType})` : '');
 
+    // Extract user ID from Firebase token if available
+    let userId: string | undefined;
+    const authHeader = req.headers.authorization;
+    console.log('🔍 Auth header:', authHeader ? 'Bearer token present' : 'No auth header');
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        userId = decodedToken.uid;
+        console.log('✅ User ID extracted from token:', userId);
+      } catch (error) {
+        console.log('⚠️ Invalid Firebase token:', error);
+        // Continue without user ID
+      }
+    } else {
+      console.log('⚠️ No Firebase token provided - inventory validation will be skipped');
+    }
+
     const result = await geminiRAG.generateStoryWithRAG(
       storyId,
       userMessage,
       conversationHistory || [],
-      actionType
+      actionType,
+      sessionId,
+      userId
     );
 
     res.json({

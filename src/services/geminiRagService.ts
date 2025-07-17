@@ -18,7 +18,9 @@ export class GeminiRAGService {
     storyId: string,
     userMessage: string,
     conversationHistory: Array<{ role: string; content: string }> = [],
-    actionType?: string
+    actionType?: string,
+    sessionId?: string,
+    userId?: string
   ): Promise<{
     response: string;
     contextUsed: Array<{ content: string; metadata: any }>;
@@ -30,7 +32,9 @@ export class GeminiRAGService {
         storyId,
         userMessage,
         conversationHistory,
-        actionType
+        actionType,
+        userId,
+        sessionId
       );
 
       // Build conversation contents (same as iOS GeminiService)

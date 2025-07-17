@@ -1,16 +1,7 @@
 import { Router } from 'express';
-import admin from 'firebase-admin';
+import admin from '../config/firebase';
 
 const router = Router();
-
-// Initialize Firebase Admin SDK
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    // You can add your Firebase project ID here if needed
-    // projectId: 'your-firebase-project-id'
-  });
-}
 
 // Middleware to verify Firebase tokens
 const verifyFirebaseToken = async (req: any, res: any, next: any) => {
