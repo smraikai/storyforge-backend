@@ -3,13 +3,20 @@
   "name": "The Training Grounds",
   "description": "A mysterious locked chamber where adventurers test their wit and observation skills. Can you discover the hidden secrets within and find your way to freedom?",
   "thumbnail": "training-grounds-thumbnail.jpg",
-  "estimatedDuration": "15-20 minutes",
-  "tags": ["puzzle", "mystery", "exploration", "tutorial"],
+  "estimatedDuration": "Open-ended",
+  "tags": ["puzzle", "mystery", "exploration", "sandbox"],
   "author": {
     "id": "storyforge-team",
     "name": "StoryForge Team",
     "bio": "The official creators of StoryForge, crafting immersive interactive adventures.",
     "avatarURL": "https://cdn.storyforge.app/authors/storyforge-team.webp"
+  },
+  "worldInfo": {
+    "setting": "An ancient training facility designed to test adventurers' observation and problem-solving skills",
+    "theme": "Discovery through careful observation and logical thinking",
+    "atmosphere": "Mysterious yet safe, purposefully designed with hidden secrets",
+    "genre": "Mystery puzzle chamber",
+    "tone": "Encouraging and educational, rewarding curiosity"
   },
   "startingPrompt": "You find yourself standing in the center of a circular stone chamber, the heavy oak door behind you sealed shut with an audible click. The room is dimly lit by flickering torches mounted in iron sconces along the walls, casting dancing shadows across weathered stone blocks.\n\nThis appears to be some kind of training facility - ancient but well-maintained. The air smells of old parchment and burning oil, with a faint metallic tang that suggests this place has seen many challenges over the years.\n\nYou turn to examine the door you entered through, running your fingers along its sturdy wooden surface. The handle refuses to budge, and you notice there's a small keyhole beneath the iron handle - clearly, you'll need to find a key to escape.\n\nThe chamber isn't large, perhaps twenty feet across, but it feels deliberately designed. Every stone seems placed with purpose, every shadow carefully considered. Your eyes begin to adjust to the torchlight, revealing details that weren't immediately obvious.\n\nThis is clearly a test of some kind - but what exactly are you meant to discover?",
   "created": "2024-01-15T00:00:00Z",

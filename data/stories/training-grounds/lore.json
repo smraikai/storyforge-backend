@@ -1,0 +1,68 @@
+{
+  "lore": [
+    {
+      "id": "training_tradition",
+      "topic": "Ancient Training Traditions",
+      "description": "The training chambers were built centuries ago by master craftsmen who understood that true adventure skills come from patience, observation, and logical thinking rather than brute force or luck.",
+      "category": "history",
+      "importance": "common",
+      "keywords": ["training", "tradition", "ancient", "observation", "patience"]
+    },
+    {
+      "id": "chamber_purpose",
+      "topic": "Purpose of the Chamber",
+      "description": "This particular chamber was designed to teach the fundamental skill of careful observation. Every detail has been purposefully placed to reward those who look beyond the obvious.",
+      "category": "lore",
+      "importance": "common",
+      "keywords": ["purpose", "observation", "detail", "reward", "obvious"]
+    },
+    {
+      "id": "echo_nature",
+      "topic": "The Nature of Echo",
+      "description": "Echo is a benevolent magical construct created by the chamber's original builders. It exists to guide adventurers without spoiling their learning experience, celebrating discoveries and offering gentle nudges when needed.",
+      "category": "magic",
+      "importance": "uncommon",
+      "keywords": ["echo", "magical", "construct", "guide", "benevolent"]
+    },
+    {
+      "id": "chamber_memory",
+      "topic": "The Chamber's Living Memory",
+      "description": "The chamber has absorbed the experiences of countless adventurers over the centuries. This accumulated wisdom manifests as subtle environmental cues that guide observant explorers.",
+      "category": "magic",
+      "importance": "rare",
+      "keywords": ["memory", "wisdom", "environmental", "cues", "accumulated"]
+    },
+    {
+      "id": "torch_magic",
+      "topic": "Enchanted Torches",
+      "description": "The torches in the chamber are not ordinary flames. They are magically sustained and designed to provide both illumination and subtle hints through their behavior and positioning.",
+      "category": "magic",
+      "importance": "uncommon",
+      "keywords": ["torches", "enchanted", "flames", "magical", "hints"]
+    },
+    {
+      "id": "stone_craftsmanship",
+      "topic": "Masterful Stone Work",
+      "description": "Every stone in the chamber was carefully selected and placed by master craftsmen. The seemingly random variations in texture and positioning are actually deliberate design elements.",
+      "category": "craftsmanship",
+      "importance": "common",
+      "keywords": ["stone", "craftsmanship", "deliberate", "design", "masterful"]
+    },
+    {
+      "id": "learning_philosophy",
+      "topic": "Philosophy of Learning",
+      "description": "The chamber operates on the principle that true learning comes from discovery, not instruction. It provides all necessary information while requiring the adventurer to make connections themselves.",
+      "category": "philosophy",
+      "importance": "common",
+      "keywords": ["learning", "discovery", "philosophy", "connections", "principle"]
+    },
+    {
+      "id": "safety_design",
+      "topic": "Safety Through Design",
+      "description": "While the chamber presents challenges, it is fundamentally designed to be safe. Dangerous outcomes only result from extremely reckless actions, serving as important lessons about consequences.",
+      "category": "design",
+      "importance": "common",
+      "keywords": ["safety", "design", "consequences", "reckless", "lessons"]
+    }
+  ]
+}

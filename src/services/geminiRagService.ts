@@ -161,8 +161,7 @@ export class GeminiRAGService {
 
       console.log('✅ RAG-enhanced story generation completed successfully');
 
-      // Update story state tracking
-      this.ragService.updateStoryState(storyId, storyResponse.narrative, userMessage);
+      // Removed story state tracking for sandbox approach
 
       return {
         response: storyResponse,

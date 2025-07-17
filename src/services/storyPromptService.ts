@@ -1,7 +1,6 @@
 import path from 'path';
 import fs from 'fs/promises';
-import { StoryStateTracker } from './storyStateTracker';
-import { ScenarioProgressionService, PlayerProgress } from './scenarioProgressionService';
+// Removed complex story progression services for sandbox approach
 
 const UNIFIED_SYSTEM_PROMPT = `You are an expert DUNGEON MASTER running a solo adventure. Your primary role is to:
 1. ACKNOWLEDGE what the player does
@@ -178,21 +177,10 @@ MANDATORY: Start with "As darkness fades..." or "You awaken..." or "Life returns
 }
 
 export class StoryPromptService {
-  private storyStateTrackers: Map<string, StoryStateTracker> = new Map();
-  private scenarioService: ScenarioProgressionService;
-
+  // Simplified for sandbox approach - removed complex state tracking
+  
   constructor() {
-    this.scenarioService = new ScenarioProgressionService();
-  }
-
-  /**
-   * Get or create story state tracker for a story
-   */
-  private getStateTracker(storyId: string): StoryStateTracker {
-    if (!this.storyStateTrackers.has(storyId)) {
-      this.storyStateTrackers.set(storyId, new StoryStateTracker(storyId));
-    }
-    return this.storyStateTrackers.get(storyId)!;
+    // Simplified constructor
   }
 
   /**
@@ -378,7 +366,7 @@ Content: ${loreEntry.content}`,
     contextUsed: Array<{ content: string; metadata: any }>;
   }> {
     const storyContext = await this.searchStoryContext(storyId, userQuery, 5);
-    const storyStateTracker = this.getStateTracker(storyId);
+    // Removed state tracker for sandbox approach
 
     const contextString = storyContext
       .map(ctx => `[${ctx.metadata.category}] ${ctx.content}`)
@@ -390,23 +378,11 @@ Content: ${loreEntry.content}`,
     // Create action type context
     const actionTypeContext = actionType ? getActionTypeContext(actionType) : '';
 
-    // Get story state context for DM guidance
-    const storyStateContext = storyStateTracker.getContextForPrompt();
-    
-    // Check if intervention is needed
-    const intervention = storyStateTracker.needsIntervention();
+    // Removed story state tracking for sandbox approach
+    // In sandbox mode, the LLM handles all story progression organically
     
     let interventionPrompt = '';
-    if (intervention.needed) {
-      interventionPrompt = `
-🚨 IMMEDIATE DUNGEON MASTER INTERVENTION REQUIRED 🚨
-Reason: ${intervention.reason}
-Required Action: ${intervention.intervention}
-
-YOU MUST implement this intervention in your response. The story needs active DM guidance RIGHT NOW.
-Don't just acknowledge the player action - ALSO execute the intervention to keep the story engaging.
-      `;
-    }
+    // No automated interventions in sandbox mode
 
     const enhancedPrompt = `IMMEDIATE PLAYER ACTION TO ACKNOWLEDGE: "${userQuery}"
 
@@ -415,8 +391,6 @@ ${actionTypeContext ? `${actionTypeContext}\n\n` : ''}YOU MUST START YOUR RESPON
 ${interventionPrompt}
 
 ${UNIFIED_SYSTEM_PROMPT}
-
-${storyStateContext}
 
 RELEVANT STORY CONTEXT:
 ${contextString}
@@ -430,7 +404,6 @@ DUNGEON MASTER CHECKLIST:
 ✓ Did you advance the story forward?
 ✓ Did you create urgency or tension?
 ✓ Are your choices pushing the narrative forward?
-${intervention.needed ? '✓ Did you implement the required intervention?' : ''}
 
 Remember: You are an active Dungeon Master, not a passive narrator. Make things happen!`;
 
@@ -488,115 +461,8 @@ Remember: You are an active Dungeon Master, not a passive narrator. Make things 
       .join('\n');
   }
 
-  /**
-   * Update story state after generating response
-   */
-  updateStoryState(storyId: string, narrative: string, userAction: string): void {
-    const storyStateTracker = this.getStateTracker(storyId);
-    storyStateTracker.updateFromNarrative(narrative, userAction);
-  }
+  // Removed story state tracking methods for sandbox approach
 
-  /**
-   * Get current story state for debugging
-   */
-  getStoryState(storyId: string): any {
-    const storyStateTracker = this.getStateTracker(storyId);
-    return storyStateTracker.getState();
-  }
-
-  /**
-   * Generate enhanced prompt with scenario context
-   */
-  async generateScenarioAwarePrompt(
-    storyId: string,
-    scenarioId: string,
-    userQuery: string,
-    playerProgress: PlayerProgress,
-    conversationHistory: Array<{ role: string; content: string }> = [],
-    actionType?: string
-  ): Promise<{
-    enhancedPrompt: string;
-    contextUsed: Array<{ content: string; metadata: any }>;
-    scenarioEvaluation: any;
-  }> {
-    // Get standard RAG context
-    const { enhancedPrompt: ragPrompt, contextUsed } = await this.generateEnhancedPrompt(
-      storyId,
-      userQuery,
-      conversationHistory,
-      actionType
-    );
-
-    // Get scenario-specific context
-    const scenarioContext = await this.scenarioService.generateScenarioContext(
-      storyId,
-      scenarioId,
-      playerProgress
-    );
-
-    // Evaluate the player's action
-    const scenarioEvaluation = await this.scenarioService.evaluateAction(
-      storyId,
-      scenarioId,
-      userQuery,
-      playerProgress
-    );
-
-    // Create scenario-aware prompt
-    const scenarioPrompt = `${ragPrompt}
-
-SCENARIO CONTEXT:
-${scenarioContext}
-
-ACTION EVALUATION:
-- Success: ${scenarioEvaluation.success}
-- Failure: ${scenarioEvaluation.failure}
-- Death: ${scenarioEvaluation.death}
-- Scenario Complete: ${scenarioEvaluation.scenario_complete}
-- Beat Complete: ${scenarioEvaluation.beat_complete}
-- Story Complete: ${scenarioEvaluation.story_complete}
-- Feedback: ${scenarioEvaluation.feedback}
-- Consequences: ${scenarioEvaluation.consequences}
-${scenarioEvaluation.next_scenario ? `- Next Scenario: ${scenarioEvaluation.next_scenario}` : ''}
-
-SCENARIO GUIDANCE:
-${scenarioEvaluation.death ? 'PLAYER HAS DIED - Generate death scene and restart option' : ''}
-${scenarioEvaluation.scenario_complete ? 'SCENARIO COMPLETE - Generate completion narrative and transition' : ''}
-${scenarioEvaluation.beat_complete ? 'STORY BEAT COMPLETE - Major milestone achieved' : ''}
-${scenarioEvaluation.story_complete ? 'STORY COMPLETE - Generate victory celebration' : ''}
-
-Remember: This is a structured adventure with clear objectives and consequences. Guide the player according to the scenario parameters.`;
-
-    return {
-      enhancedPrompt: scenarioPrompt,
-      contextUsed,
-      scenarioEvaluation
-    };
-  }
-
-  /**
-   * Handle death and restart scenario
-   */
-  async handlePlayerDeath(
-    storyId: string,
-    scenarioId: string,
-    playerProgress: PlayerProgress
-  ): Promise<{
-    restart_scenario: string;
-    restart_beat: string;
-    reset_progress: boolean;
-  }> {
-    return await this.scenarioService.handleDeath(storyId, scenarioId, playerProgress);
-  }
-
-  /**
-   * Get next scenario in progression
-   */
-  async getNextScenario(
-    storyId: string,
-    currentScenarioId: string,
-    playerProgress: PlayerProgress
-  ): Promise<string | null> {
-    return await this.scenarioService.getNextScenario(storyId, currentScenarioId, playerProgress);
-  }
+  // Removed complex scenario progression methods for sandbox approach
+  // The main generateEnhancedPrompt method remains to support RAG functionality
 }
