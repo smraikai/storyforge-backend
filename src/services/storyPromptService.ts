@@ -117,24 +117,6 @@ MANDATORY: Start with "You swing..." or "You dodge..." or "You cast..."
 - Environmental combat factors
 - Keep combat moving toward resolution`;
 
-    case 'inventory':
-      return `PLAYER ACTION: Using/Managing Items
-MANDATORY: Start with "You pull out..." or "You use..." or "You combine..."
-- Physical description of item interaction
-- Immediate effects or transformations
-- How item use changes the situation
-- Unexpected properties or consequences
-- New possibilities opened by item use`;
-
-    case 'character':
-      return `PLAYER ACTION: Self-Reflection/Status Check
-MANDATORY: Start with "You pause to assess..." or "You consider your..."
-- Weave status into narrative naturally
-- Connect abilities to current challenges
-- Reveal character growth or changes
-- Suggest new approaches based on abilities
-- Maintain story momentum during reflection`;
-
     case 'worldbuilding':
       return `NARRATIVE MOMENT: Environmental Storytelling
 - Set the scene with rich sensory details
@@ -151,25 +133,6 @@ MANDATORY: Show change and progression
 - Introduce complications or opportunities
 - Never just repeat the previous scene
 - Force player engagement with new developments`;
-
-    case 'death':
-      return `PLAYER DEATH: Fatal Consequences
-MANDATORY: Start with "You [their fatal action]..."
-- Describe the action that led to death in vivid detail
-- Show the immediate cause of death (injury, trap, environment)
-- Create a dramatic death scene with proper weight and consequence
-- Include the character's final moments and thoughts
-- End with clear indication that the story must restart
-- Provide "restart" choice to begin the adventure again`;
-
-    case 'resurrection':
-      return `PLAYER RESURRECTION: Second Chance
-MANDATORY: Start with "As darkness fades..." or "You awaken..." or "Life returns..."
-- Describe the revival process in mystical/magical terms
-- Acknowledge the previous death and what was learned
-- Show how the world/environment has reset or changed
-- Include any new knowledge or abilities gained from the experience
-- Generate choices that incorporate lessons learned from failure`;
 
     default:
       return 'PLAYER ACTION: Acknowledge their specific action and show its consequences.';
