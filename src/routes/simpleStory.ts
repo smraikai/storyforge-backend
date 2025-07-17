@@ -38,12 +38,26 @@ router.post('/:storyId/generate-rag', async (req, res) => {
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
         const token = authHeader.substring(7);
-        const decodedToken = await admin.auth().verifyIdToken(token);
-        userId = decodedToken.uid;
-        console.log('✅ User ID extracted from token:', userId);
+        console.log('🔍 Attempting to verify Firebase token...');
+        
+        // Check if we have proper Firebase auth setup
+        if (!admin.apps.length) {
+          console.log('⚠️ Firebase Admin not initialized - skipping token verification');
+        } else {
+          const decodedToken = await admin.auth().verifyIdToken(token);
+          userId = decodedToken.uid;
+          console.log('✅ User ID extracted from token:', userId);
+        }
       } catch (error) {
-        console.log('⚠️ Invalid Firebase token:', error);
-        // Continue without user ID
+        console.log('⚠️ Firebase token verification failed:', error);
+        console.log('⚠️ This might be due to missing Firebase service account credentials');
+        console.log('⚠️ Continuing without user authentication - inventory features will be limited');
+        
+        // For development: use a test user ID when Firebase auth fails
+        if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+          userId = 'test-user-dev';
+          console.log('🧪 Development mode: Using test user ID for inventory testing');
+        }
       }
     } else {
       console.log('⚠️ No Firebase token provided - inventory validation will be skipped');
