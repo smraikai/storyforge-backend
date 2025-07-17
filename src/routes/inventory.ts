@@ -1,13 +1,39 @@
 import express from 'express';
 import { InventoryService } from '../services/inventoryService';
 import { InventoryAction } from '../types/inventory';
-import { authenticateToken } from '../middleware/auth';
+import admin from '../config/firebase';
 
 const router = express.Router();
 const inventoryService = new InventoryService();
 
-// Apply authentication middleware to all inventory routes
-router.use(authenticateToken);
+// Firebase authentication middleware
+const authenticateFirebase = async (req: any, res: any, next: any) => {
+  try {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    
+    req.user = {
+      id: decodedToken.uid,
+      email: decodedToken.email,
+      name: decodedToken.name,
+      picture: decodedToken.picture
+    };
+    
+    next();
+  } catch (error) {
+    console.error('Firebase token verification error:', error);
+    res.status(401).json({ error: 'Invalid or expired token' });
+  }
+};
+
+// Apply Firebase authentication middleware to all inventory routes
+router.use(authenticateFirebase);
 
 /**
  * GET /api/inventory/:sessionId
