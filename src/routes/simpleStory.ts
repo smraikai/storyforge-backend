@@ -84,7 +84,41 @@ router.post('/:storyId/generate-rag', async (req, res) => {
         // Process items gained
         if (result.inventoryChanges.items_gained && result.inventoryChanges.items_gained.length > 0) {
           for (const item of result.inventoryChanges.items_gained) {
-            console.log(`📦 Adding item to inventory: ${item.name} (${item.quantity || 1})`);
+            console.log(`📦 Processing item gain: ${item.name} (${item.quantity || 1}) - ${item.source || 'no source given'}`);
+            
+            // Check if this is a "pickup" action based on the source
+            const isPickup = item.source?.includes('picked up') || 
+                            item.source?.includes('from floor') ||
+                            item.source?.includes('from ground');
+            
+            if (isPickup) {
+              // Try to pick up from world state first
+              console.log(`🌍 Attempting to pick up from world state: ${item.name}`);
+              try {
+                const defaultLocation = 'training_grounds'; // Use same default as story generation
+                const pickedUpItems = await worldStateService.pickupAllItemsForUser(
+                  userId,
+                  sessionId,
+                  storyId,
+                  defaultLocation
+                );
+                
+                if (pickedUpItems.length > 0) {
+                  console.log(`✅ Picked up ${pickedUpItems.length} items from world state`);
+                  // Items are already added to inventory by pickupAllItemsForUser
+                  continue; // Skip regular item addition
+                } else {
+                  console.log(`⚠️ No items found in world state to pick up, falling back to regular addition`);
+                }
+              } catch (error) {
+                console.error(`❌ Failed to pick up from world state: ${error}`);
+                console.log(`⚠️ Falling back to regular item addition for: ${item.name}`);
+                // Fall through to regular item addition
+              }
+            }
+            
+            // Regular item addition (new items, found items, etc.)
+            console.log(`📦 Adding item to inventory: ${item.name}`);
             
             // Check if this is a template item (predefined) or dynamic item (AI-generated)
             const existingTemplate = inventoryService.getStoryItems(storyId)
