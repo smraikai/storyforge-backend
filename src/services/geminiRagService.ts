@@ -69,91 +69,88 @@ export class GeminiRAGService {
           candidateCount: 1,
           responseMimeType: 'application/json',
           responseSchema: {
-            type: 'object',
+            type: 'OBJECT',
             properties: {
               narrative: {
-                type: 'string',
+                type: 'STRING',
                 description: 'The story continuation narration'
               },
               choices: {
-                type: 'array',
+                type: 'ARRAY',
                 items: {
-                  type: 'object',
+                  type: 'OBJECT',
                   properties: {
                     id: {
-                      type: 'string',
+                      type: 'STRING',
                       description: 'Unique identifier for the choice'
                     },
                     text: {
-                      type: 'string',
+                      type: 'STRING',
                       description: 'The action text for the choice'
                     },
                     hint: {
-                      type: 'string',
+                      type: 'STRING',
                       description: 'Optional hint about consequences'
                     }
                   },
                   required: ['id', 'text']
-                },
-                minItems: 2,
-                maxItems: 5
+                }
               },
               context: {
-                type: 'object',
+                type: 'OBJECT',
                 properties: {
-                  location: { type: 'string' },
+                  location: { type: 'STRING' },
                   tension: { 
-                    type: 'string',
+                    type: 'STRING',
                     enum: ['low', 'medium', 'high', 'critical']
                   },
                   momentum: {
-                    type: 'string', 
+                    type: 'STRING', 
                     enum: ['stalled', 'slow', 'steady', 'fast']
                   }
                 }
               },
               inventory_changes: {
-                type: 'object',
+                type: 'OBJECT',
                 properties: {
                   items_gained: {
-                    type: 'array',
+                    type: 'ARRAY',
                     items: {
-                      type: 'object',
+                      type: 'OBJECT',
                       properties: {
-                        id: { type: 'string' },
-                        name: { type: 'string' },
-                        description: { type: 'string' },
-                        quantity: { type: 'number', default: 1 },
-                        source: { type: 'string' },
+                        id: { type: 'STRING' },
+                        name: { type: 'STRING' },
+                        description: { type: 'STRING' },
+                        quantity: { type: 'NUMBER' },
+                        source: { type: 'STRING' },
                         rarity: { 
-                          type: 'string', 
-                          enum: ['common', 'uncommon', 'rare', 'epic', 'legendary'],
-                          default: 'common'
+                          type: 'STRING',
+                          enum: ['common', 'uncommon', 'rare', 'epic', 'legendary']
                         },
-                        category: { type: 'string' },
-                        magical: { type: 'boolean', default: false },
+                        category: { type: 'STRING' },
+                        magical: { type: 'BOOLEAN' },
                         properties: { 
-                          type: 'array', 
-                          items: { type: 'string' }
+                          type: 'ARRAY', 
+                          items: { type: 'STRING' }
                         }
                       },
                       required: ['id', 'name']
                     }
                   },
                   items_lost: {
-                    type: 'array',
+                    type: 'ARRAY',
                     items: {
-                      type: 'object',
+                      type: 'OBJECT',
                       properties: {
-                        id: { type: 'string' },
-                        name: { type: 'string' },
-                        quantity: { type: 'number', default: 1 },
-                        reason: { type: 'string' }
+                        id: { type: 'STRING' },
+                        name: { type: 'STRING' },
+                        quantity: { type: 'NUMBER' },
+                        reason: { type: 'STRING' }
                       },
                       required: ['id', 'name']
                     }
                   },
-                  gold_change: { type: 'number', default: 0 }
+                  gold_change: { type: 'NUMBER' }
                 }
               }
             },
@@ -190,12 +187,39 @@ export class GeminiRAGService {
 
       const generatedText = (data as any).candidates[0].content.parts[0]?.text || '';
       
+      // Log the raw response for debugging
+      console.log('🤖 Raw Gemini response:', generatedText);
+      
       // Parse the JSON response
       let storyResponse;
       try {
         storyResponse = JSON.parse(generatedText);
       } catch (error) {
-        throw new Error(`Failed to parse JSON response: ${error}`);
+        console.error('❌ Failed to parse JSON response. Raw text:', generatedText);
+        console.error('❌ JSON parse error:', error);
+        
+        // Try to clean up common JSON issues
+        let cleanedText = generatedText;
+        
+        // Remove any text before the first {
+        const firstBrace = cleanedText.indexOf('{');
+        if (firstBrace > 0) {
+          cleanedText = cleanedText.substring(firstBrace);
+        }
+        
+        // Remove any text after the last }
+        const lastBrace = cleanedText.lastIndexOf('}');
+        if (lastBrace > 0 && lastBrace < cleanedText.length - 1) {
+          cleanedText = cleanedText.substring(0, lastBrace + 1);
+        }
+        
+        // Try parsing the cleaned text
+        try {
+          storyResponse = JSON.parse(cleanedText);
+          console.log('✅ Successfully parsed cleaned JSON');
+        } catch (secondError) {
+          throw new Error(`Failed to parse JSON response even after cleanup. Original error: ${error}. Cleanup error: ${secondError}. Raw text: ${generatedText.substring(0, 500)}...`);
+        }
       }
 
       // Validate required fields

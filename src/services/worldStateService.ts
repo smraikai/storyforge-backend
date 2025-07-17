@@ -307,7 +307,9 @@ export class WorldStateService {
    * Get summary of items in location for AI context
    */
   async getLocationItemsSummary(storyId: string, locationId: string): Promise<string> {
+    console.log(`🌍 Getting world items for: ${storyId}_${locationId}`);
     const items = await this.getItemsInLocation(storyId, locationId);
+    console.log(`🌍 Found ${items.length} items in world state`);
     
     if (items.length === 0) {
       return "WORLD ITEMS: None (location is clear)";
@@ -318,6 +320,7 @@ export class WorldStateService {
       return `${quantity}${item.originalItem.name}`;
     });
 
+    console.log(`🌍 World items: ${itemDescriptions.join(', ')}`);
     return `WORLD ITEMS (${items.length} on ground): ${itemDescriptions.join(', ')}`;
   }
 }
