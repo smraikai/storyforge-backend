@@ -25,6 +25,7 @@ export class GeminiRAGService {
     response: string;
     contextUsed: Array<{ content: string; metadata: any }>;
     sources: string[];
+    inventoryChanges?: any;
   }> {
     try {
       // Get enhanced prompt with story context
@@ -107,6 +108,38 @@ export class GeminiRAGService {
                     enum: ['stalled', 'slow', 'steady', 'fast']
                   }
                 }
+              },
+              inventory_changes: {
+                type: 'object',
+                properties: {
+                  items_gained: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        name: { type: 'string' },
+                        quantity: { type: 'number', default: 1 },
+                        source: { type: 'string' }
+                      },
+                      required: ['id', 'name']
+                    }
+                  },
+                  items_lost: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'string' },
+                        name: { type: 'string' },
+                        quantity: { type: 'number', default: 1 },
+                        reason: { type: 'string' }
+                      },
+                      required: ['id', 'name']
+                    }
+                  },
+                  gold_change: { type: 'number', default: 0 }
+                }
               }
             },
             required: ['narrative', 'choices']
@@ -170,7 +203,8 @@ export class GeminiRAGService {
       return {
         response: storyResponse,
         contextUsed,
-        sources
+        sources,
+        inventoryChanges: storyResponse.inventory_changes
       };
 
     } catch (error) {

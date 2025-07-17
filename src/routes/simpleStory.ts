@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import { GeminiRAGService } from '../services/geminiRagService';
 import { StoryDiscoveryService } from '../services/storyDiscoveryService';
+import { InventoryService } from '../services/inventoryService';
 import admin from '../config/firebase';
 
 const router = Router();
 const geminiRAG = new GeminiRAGService();
 const storyDiscovery = new StoryDiscoveryService();
+const inventoryService = new InventoryService();
 
 // RAG-enhanced story generation using direct Gemini API
 router.post('/:storyId/generate-rag', async (req, res) => {
@@ -72,13 +74,62 @@ router.post('/:storyId/generate-rag', async (req, res) => {
       userId
     );
 
+    // Process inventory changes if present and user is authenticated
+    if (userId && sessionId && result.inventoryChanges) {
+      console.log('🎒 Processing inventory changes:', result.inventoryChanges);
+      
+      try {
+        // Process items gained
+        if (result.inventoryChanges.items_gained && result.inventoryChanges.items_gained.length > 0) {
+          for (const item of result.inventoryChanges.items_gained) {
+            console.log(`📦 Adding item to inventory: ${item.name} (${item.quantity || 1})`);
+            await inventoryService.addItem(
+              userId,
+              sessionId,
+              item.id,
+              item.quantity || 1,
+              item.source || 'story_event'
+            );
+          }
+        }
+
+        // Process items lost
+        if (result.inventoryChanges.items_lost && result.inventoryChanges.items_lost.length > 0) {
+          for (const item of result.inventoryChanges.items_lost) {
+            console.log(`🗑️ Removing item from inventory: ${item.name} (${item.quantity || 1})`);
+            const inventory = await inventoryService.getPlayerInventory(userId, sessionId);
+            if (inventory) {
+              const inventoryItem = inventory.items.find(invItem => 
+                invItem.name.toLowerCase() === item.name.toLowerCase()
+              );
+              if (inventoryItem) {
+                await inventoryService.removeItem(userId, sessionId, inventoryItem.id, item.quantity || 1);
+              }
+            }
+          }
+        }
+
+        // Process gold changes
+        if (result.inventoryChanges.gold_change && result.inventoryChanges.gold_change !== 0) {
+          console.log(`💰 Gold change: ${result.inventoryChanges.gold_change > 0 ? '+' : ''}${result.inventoryChanges.gold_change}`);
+          // TODO: Implement gold change logic
+        }
+
+        console.log('✅ Inventory changes processed successfully');
+      } catch (error) {
+        console.error('❌ Error processing inventory changes:', error);
+        // Don't fail the response if inventory processing fails
+      }
+    }
+
     res.json({
       success: true,
       response: result.response,
       contextUsed: result.contextUsed,
       metadata: {
         sources: result.sources,
-        contextRelevant: result.contextUsed.length > 0
+        contextRelevant: result.contextUsed.length > 0,
+        inventoryChanges: result.inventoryChanges
       }
     });
 

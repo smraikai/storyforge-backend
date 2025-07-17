@@ -392,6 +392,14 @@ Content: ${loreEntry.content}`,
     if (userId && sessionId) {
       console.log('🎒 Loading inventory context for user:', userId, 'session:', sessionId);
       try {
+        // Check if inventory exists, if not initialize it
+        let inventory = await this.inventoryService.getPlayerInventory(userId, sessionId);
+        if (!inventory) {
+          console.log('📦 Initializing new inventory for user:', userId, 'session:', sessionId);
+          inventory = await this.inventoryService.initializeInventory(userId, sessionId, storyId);
+          console.log('✅ Inventory initialized successfully');
+        }
+        
         // Get inventory summary for context
         const inventorySummary = await this.inventoryService.getInventorySummary(userId, sessionId);
         inventoryContext = `\n\nPLAYER INVENTORY:\n${inventorySummary}`;
