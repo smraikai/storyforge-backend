@@ -38,16 +38,25 @@ export class WorldStateService {
         return null;
       }
       
+      // Helper function to safely convert dates
+      const toSafeDate = (dateValue: any): Date => {
+        if (!dateValue) return new Date();
+        if (dateValue instanceof Date) return dateValue;
+        if (typeof dateValue.toDate === 'function') return dateValue.toDate();
+        if (typeof dateValue === 'string') return new Date(dateValue);
+        return new Date();
+      };
+
       return {
         ...data,
-        lastUpdated: data.lastUpdated.toDate(),
+        lastUpdated: toSafeDate(data.lastUpdated),
         items: data.items.map((item: any) => ({
           ...item,
-          droppedAt: item.droppedAt.toDate(),
+          droppedAt: toSafeDate(item.droppedAt),
           originalItem: {
             ...item.originalItem,
-            acquiredAt: item.originalItem.acquiredAt.toDate(),
-            lastUsed: item.originalItem.lastUsed?.toDate()
+            acquiredAt: toSafeDate(item.originalItem.acquiredAt),
+            lastUsed: item.originalItem.lastUsed ? toSafeDate(item.originalItem.lastUsed) : null
           }
         }))
       } as WorldState;
@@ -81,14 +90,32 @@ export class WorldStateService {
       const cleanedWorldState = {
         ...worldState,
         items: worldState.items.map(item => {
-          const cleanedItem: any = { ...item };
-          // Remove undefined properties
-          Object.keys(cleanedItem).forEach(key => {
-            if (cleanedItem[key] === undefined) {
-              delete cleanedItem[key];
+          const cleanedItem: any = { 
+            ...item,
+            originalItem: {
+              ...item.originalItem,
+              // Clean up undefined values in originalItem
+              lastUsed: item.originalItem.lastUsed || null
             }
-          });
-          return cleanedItem;
+          };
+          
+          // Remove undefined properties recursively
+          const removeUndefined = (obj: any): any => {
+            if (obj === null || typeof obj !== 'object') return obj;
+            if (Array.isArray(obj)) {
+              return obj.map(removeUndefined);
+            }
+            
+            const cleaned: any = {};
+            Object.keys(obj).forEach(key => {
+              if (obj[key] !== undefined) {
+                cleaned[key] = removeUndefined(obj[key]);
+              }
+            });
+            return cleaned;
+          };
+          
+          return removeUndefined(cleanedItem);
         }),
         lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
         version: worldState.version + 1
