@@ -4,7 +4,7 @@ import { InventoryAction } from '../types/inventory';
 import admin from '../config/firebase';
 
 const router = express.Router();
-const inventoryService = new InventoryService();
+const inventoryService = InventoryService.getInstance();
 
 // Firebase authentication middleware
 const authenticateFirebase = async (req: any, res: any, next: any) => {
@@ -44,6 +44,8 @@ router.get('/:sessionId', async (req, res) => {
     const { sessionId } = req.params;
     const userId = req.user?.id;
 
+    console.log(`🔍 Frontend requesting inventory for sessionId: ${sessionId}, userId: ${userId} at ${new Date().toISOString()}`);
+
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' });
     }
@@ -51,8 +53,11 @@ router.get('/:sessionId', async (req, res) => {
     const inventory = await inventoryService.getPlayerInventory(userId, sessionId);
     
     if (!inventory) {
+      console.log(`❌ No inventory found for userId: ${userId}, sessionId: ${sessionId}`);
       return res.status(404).json({ error: 'Inventory not found' });
     }
+
+    console.log(`✅ Found inventory for userId: ${userId}, sessionId: ${sessionId} with ${inventory.items.length} items`);
 
     res.json({
       success: true,

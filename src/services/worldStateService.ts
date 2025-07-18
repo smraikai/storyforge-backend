@@ -16,7 +16,7 @@ export class WorldStateService {
 
   constructor() {
     this.firestore = admin.firestore();
-    this.inventoryService = new InventoryService();
+    this.inventoryService = InventoryService.getInstance();
   }
 
   /**
@@ -234,6 +234,7 @@ export class WorldStateService {
     storyId: string, 
     locationId: string
   ): Promise<InventoryItem[]> {
+    console.log(`🎒 pickupAllItemsForUser called with sessionId: ${sessionId}, userId: ${userId}`);
     // Get world state
     const worldState = await this.getWorldState(storyId, locationId);
     if (!worldState) {
@@ -261,6 +262,8 @@ export class WorldStateService {
       throw new Error('Inventory not found');
     }
 
+    console.log(`🎒 Current inventory before pickup has ${inventory.items.length} items`);
+
     const pickedUpItems: InventoryItem[] = [];
     for (const worldItem of userItems) {
       inventory.items.push(worldItem.originalItem);
@@ -268,7 +271,20 @@ export class WorldStateService {
       pickedUpItems.push(worldItem.originalItem);
     }
 
+    console.log(`🎒 Inventory after adding items has ${inventory.items.length} items`);
+    console.log(`🎒 Saving inventory for sessionId: ${sessionId}, userId: ${userId}`);
+    
     await this.inventoryService.saveInventory(inventory);
+    
+    console.log(`🎒 Inventory saved successfully. Verifying save...`);
+    
+    // Verify the save worked by reading it back
+    const verifyInventory = await this.inventoryService.getPlayerInventory(userId, sessionId);
+    if (verifyInventory) {
+      console.log(`🎒 Verification: Inventory now has ${verifyInventory.items.length} items after save`);
+    } else {
+      console.log(`❌ Verification failed: Could not retrieve inventory after save`);
+    }
 
     console.log(`🎒 Picked up ${pickedUpItems.length} items from world at ${locationId}`);
     return pickedUpItems;

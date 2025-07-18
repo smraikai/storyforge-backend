@@ -8,7 +8,7 @@ import admin from '../config/firebase';
 const router = Router();
 const geminiRAG = new GeminiRAGService();
 const storyDiscovery = new StoryDiscoveryService();
-const inventoryService = new InventoryService();
+const inventoryService = InventoryService.getInstance();
 const worldStateService = new WorldStateService();
 
 // RAG-enhanced story generation using direct Gemini API
@@ -34,38 +34,44 @@ router.post('/:storyId/generate-rag', async (req, res) => {
 
     console.log(`🎭 Processing RAG story request for ${storyId}:`, userMessage, actionType ? `(${actionType})` : '');
 
-    // Extract user ID from Firebase token if available
+    // Extract user ID from Firebase token (required for inventory operations)
     let userId: string | undefined;
     const authHeader = req.headers.authorization;
     console.log('🔍 Auth header:', authHeader ? 'Bearer token present' : 'No auth header');
+    console.log('🔍 Request sessionId:', sessionId);
     
     if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
         const token = authHeader.substring(7);
         console.log('🔍 Attempting to verify Firebase token...');
         
-        // Check if we have proper Firebase auth setup
-        if (!admin.apps.length) {
-          console.log('⚠️ Firebase Admin not initialized - skipping token verification');
-        } else {
-          const decodedToken = await admin.auth().verifyIdToken(token);
-          userId = decodedToken.uid;
-          console.log('✅ User ID extracted from token:', userId);
-        }
+        // Always try to verify the token - this ensures consistency with inventory API
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        userId = decodedToken.uid;
+        console.log('✅ User ID extracted from token:', userId);
       } catch (error) {
         console.log('⚠️ Firebase token verification failed:', error);
         console.log('⚠️ This might be due to missing Firebase service account credentials');
-        console.log('⚠️ Continuing without user authentication - inventory features will be limited');
         
-        // For development: use a test user ID when Firebase auth fails
+        // Only fall back to test user in development if explicitly needed
+        // But warn that this might cause inventory sync issues
         if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
           userId = 'test-user-dev';
-          console.log('🧪 Development mode: Using test user ID for inventory testing');
+          console.log('🧪 Development mode: Using test user ID - WARNING: This may cause inventory sync issues');
+        } else {
+          console.log('❌ Production mode: Authentication required for inventory features');
         }
       }
     } else {
       console.log('⚠️ No Firebase token provided - inventory validation will be skipped');
+      // In production, we might want to require auth, but for now allow anonymous stories
+      if (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+        userId = 'test-user-dev';
+        console.log('🧪 Development mode: Using test user ID for non-authenticated request');
+      }
     }
+
+    console.log('🔍 Final userId for story processing:', userId);
 
     const result = await geminiRAG.generateStoryWithRAG(
       storyId,
@@ -83,42 +89,46 @@ router.post('/:storyId/generate-rag', async (req, res) => {
       try {
         // Process items gained
         if (result.inventoryChanges.items_gained && result.inventoryChanges.items_gained.length > 0) {
-          for (const item of result.inventoryChanges.items_gained) {
-            console.log(`📦 Processing item gain: ${item.name} (${item.quantity || 1}) - ${item.source || 'no source given'}`);
-            
-            // Check if this is a "pickup" action based on the source
-            const isPickup = item.source?.includes('picked up') || 
-                            item.source?.includes('from floor') ||
-                            item.source?.includes('from ground');
-            
-            if (isPickup) {
-              // Try to pick up from world state first
-              console.log(`🌍 Attempting to pick up from world state: ${item.name}`);
-              try {
-                const defaultLocation = 'training_grounds'; // Use same default as story generation
-                const pickedUpItems = await worldStateService.pickupAllItemsForUser(
-                  userId,
-                  sessionId,
-                  storyId,
-                  defaultLocation
+          // Check if any items are pickups from world state
+          const pickupItems = result.inventoryChanges.items_gained.filter((item: any) => 
+            item.source?.includes('picked up') || 
+            item.source?.includes('from floor') ||
+            item.source?.includes('from ground')
+          );
+          
+          // If there are pickup items, handle them as a batch
+          if (pickupItems.length > 0) {
+            console.log(`🌍 Found ${pickupItems.length} pickup items, attempting bulk pickup from world state`);
+            try {
+              const defaultLocation = 'training_grounds'; // Use same default as story generation
+              const pickedUpItems = await worldStateService.pickupAllItemsForUser(
+                userId,
+                sessionId,
+                storyId,
+                defaultLocation
+              );
+              
+              if (pickedUpItems.length > 0) {
+                console.log(`✅ Picked up ${pickedUpItems.length} items from world state`);
+                // Remove pickup items from processing list since they're handled
+                const nonPickupItems = result.inventoryChanges.items_gained.filter((item: any) => 
+                  !item.source?.includes('picked up') && 
+                  !item.source?.includes('from floor') &&
+                  !item.source?.includes('from ground')
                 );
-                
-                if (pickedUpItems.length > 0) {
-                  console.log(`✅ Picked up ${pickedUpItems.length} items from world state`);
-                  // Items are already added to inventory by pickupAllItemsForUser
-                  continue; // Skip regular item addition
-                } else {
-                  console.log(`⚠️ No items found in world state to pick up, falling back to regular addition`);
-                }
-              } catch (error) {
-                console.error(`❌ Failed to pick up from world state: ${error}`);
-                console.log(`⚠️ Falling back to regular item addition for: ${item.name}`);
-                // Fall through to regular item addition
+                result.inventoryChanges.items_gained = nonPickupItems;
+              } else {
+                console.log(`⚠️ No items found in world state to pick up, will create new items`);
               }
+            } catch (error) {
+              console.error(`❌ Failed to pick up from world state: ${error}`);
+              console.log(`⚠️ Will create new items instead`);
             }
-            
-            // Regular item addition (new items, found items, etc.)
-            console.log(`📦 Adding item to inventory: ${item.name}`);
+          }
+          
+          // Process remaining items (non-pickup or fallback items)
+          for (const item of result.inventoryChanges.items_gained) {
+            console.log(`📦 Adding item to inventory: ${item.name} (${item.quantity || 1})`);
             
             // Check if this is a template item (predefined) or dynamic item (AI-generated)
             const existingTemplate = inventoryService.getStoryItems(storyId)

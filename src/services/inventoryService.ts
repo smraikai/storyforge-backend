@@ -12,18 +12,31 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export class InventoryService {
+  private static instance: InventoryService;
   private firestore: admin.firestore.Firestore;
   private storyItemTemplates: Map<string, StoryItemTemplate[]> = new Map();
+  private templatesLoaded = false;
 
-  constructor() {
+  private constructor() {
     this.firestore = admin.firestore();
-    this.loadStoryItemTemplates();
+  }
+
+  public static getInstance(): InventoryService {
+    if (!InventoryService.instance) {
+      InventoryService.instance = new InventoryService();
+      InventoryService.instance.loadStoryItemTemplates();
+    }
+    return InventoryService.instance;
   }
 
   /**
    * Load item templates from story data files
    */
   private async loadStoryItemTemplates(): Promise<void> {
+    if (this.templatesLoaded) {
+      return;
+    }
+    
     try {
       const storiesDir = path.join(__dirname, '../../data/stories');
       const storyFolders = await fs.readdir(storiesDir);
@@ -65,6 +78,8 @@ export class InventoryService {
           console.log(`ℹ️ No items.json found for story: ${storyFolder} (optional)`);
         }
       }
+      
+      this.templatesLoaded = true;
     } catch (error) {
       console.error('❌ Error loading story item templates:', error);
     }
@@ -75,19 +90,24 @@ export class InventoryService {
    */
   async getPlayerInventory(userId: string, sessionId: string): Promise<PlayerInventory | null> {
     try {
+      console.log(`🔍 Looking for inventory with userId: ${userId}, sessionId: ${sessionId}`);
       const doc = await this.firestore
         .collection('inventories')
         .doc(`${userId}_${sessionId}`)
         .get();
 
       if (!doc.exists) {
+        console.log(`❌ No inventory document found for userId: ${userId}, sessionId: ${sessionId}`);
         return null;
       }
 
       const data = doc.data();
       if (!data) {
+        console.log(`❌ Inventory document exists but has no data for userId: ${userId}, sessionId: ${sessionId}`);
         return null;
       }
+      
+      console.log(`✅ Found inventory for userId: ${userId}, sessionId: ${sessionId} with ${data.items?.length || 0} items`);
       
       return {
         ...data,
@@ -180,6 +200,8 @@ export class InventoryService {
    */
   async saveInventory(inventory: PlayerInventory): Promise<void> {
     try {
+      console.log(`💾 Saving inventory for userId: ${inventory.userId}, sessionId: ${inventory.sessionId}, items: ${inventory.items.length} at ${new Date().toISOString()}`);
+      
       // Clean up inventory items to remove undefined values
       const cleanedInventory = {
         ...inventory,
@@ -205,6 +227,8 @@ export class InventoryService {
         .collection('inventories')
         .doc(`${inventory.userId}_${inventory.sessionId}`)
         .set(cleanedInventory);
+        
+      console.log(`✅ Inventory saved successfully for userId: ${inventory.userId}, sessionId: ${inventory.sessionId}`);
     } catch (error) {
       console.error('❌ Error saving inventory:', error);
       throw error;
