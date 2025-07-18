@@ -83,6 +83,7 @@ router.post('/:storyId/generate-rag', async (req, res) => {
     );
 
     // Process inventory changes if present and user is authenticated
+    let updatedInventory = null;
     if (userId && sessionId && result.inventoryChanges) {
       console.log('🎒 Processing inventory changes:', result.inventoryChanges);
       
@@ -235,6 +236,11 @@ router.post('/:storyId/generate-rag', async (req, res) => {
           // TODO: Implement gold change logic
         }
 
+        // Get updated inventory after all changes are processed and saved
+        console.log('📦 Getting final inventory state after all Firebase operations complete...');
+        updatedInventory = await inventoryService.getPlayerInventory(userId, sessionId);
+        console.log(`📦 Final inventory retrieved: ${updatedInventory?.items.length || 0} items`);
+
         console.log('✅ Inventory changes processed successfully');
       } catch (error) {
         console.error('❌ Error processing inventory changes:', error);
@@ -246,6 +252,7 @@ router.post('/:storyId/generate-rag', async (req, res) => {
       success: true,
       response: result.response,
       contextUsed: result.contextUsed,
+      inventory: updatedInventory, // Include updated inventory in response
       metadata: {
         sources: result.sources,
         contextRelevant: result.contextUsed.length > 0,
