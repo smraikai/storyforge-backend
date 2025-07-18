@@ -65,7 +65,7 @@ export class GeminiRAGService {
           temperature: 0.85,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1200,
+          maxOutputTokens: 4000, // Increased from 1200 to handle large inventories with detailed descriptions
           candidateCount: 1,
           responseMimeType: 'application/json',
           responseSchema: {

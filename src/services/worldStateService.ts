@@ -259,9 +259,18 @@ export class WorldStateService {
     let itemsToPickup = userItems;
     if (userItems.length === 0 && worldState.items.length > 0) {
       console.log(`🌍 No user-specific items found, allowing pickup of any items in location`);
-      // Take up to 7 items (matching the AI response) or all available items
-      itemsToPickup = worldState.items.slice(0, 7);
-      console.log(`🌍 Will pick up ${itemsToPickup.length} general items from location`);
+      
+      // Deduplicate items by name to prevent picking up multiple identical items
+      const uniqueItems = new Map<string, WorldItem>();
+      for (const item of worldState.items) {
+        if (!uniqueItems.has(item.originalItem.name)) {
+          uniqueItems.set(item.originalItem.name, item);
+        }
+      }
+      
+      // Take up to 7 unique items (matching typical AI response) or all unique items
+      itemsToPickup = Array.from(uniqueItems.values()).slice(0, 7);
+      console.log(`🌍 Will pick up ${itemsToPickup.length} unique items from ${worldState.items.length} total items`);
     }
 
     if (itemsToPickup.length === 0) {
@@ -269,13 +278,14 @@ export class WorldStateService {
       return [];
     }
 
-    // Remove all user items from world state
+    // Remove only the items we're actually picking up from world state
+    const itemsToRemoveIds = itemsToPickup.map(item => item.id);
     worldState.items = worldState.items.filter(item => 
-      !(item.droppedBy === userId && item.sessionId === sessionId)
+      !itemsToRemoveIds.includes(item.id)
     );
     await this.saveWorldState(worldState);
 
-    // Add all items back to inventory
+    // Add all picked up items back to inventory
     const inventory = await this.inventoryService.getPlayerInventory(userId, sessionId);
     if (!inventory) {
       throw new Error('Inventory not found');
@@ -284,7 +294,7 @@ export class WorldStateService {
     console.log(`🎒 Current inventory before pickup has ${inventory.items.length} items`);
 
     const pickedUpItems: InventoryItem[] = [];
-    for (const worldItem of userItems) {
+    for (const worldItem of itemsToPickup) {
       inventory.items.push(worldItem.originalItem);
       inventory.currentWeight += worldItem.originalItem.weight * worldItem.originalItem.quantity;
       pickedUpItems.push(worldItem.originalItem);
