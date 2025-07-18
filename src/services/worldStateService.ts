@@ -238,15 +238,34 @@ export class WorldStateService {
     // Get world state
     const worldState = await this.getWorldState(storyId, locationId);
     if (!worldState) {
+      console.log(`🌍 No world state found for ${storyId}_${locationId}`);
       return [];
     }
+
+    console.log(`🌍 World state has ${worldState.items.length} total items`);
+    for (const item of worldState.items) {
+      console.log(`🌍 - ${item.originalItem.name} (droppedBy: "${item.droppedBy}", sessionId: "${item.sessionId}")`);
+    }
+    console.log(`🔍 Looking for items with droppedBy: "${userId}" and sessionId: "${sessionId}"`);
 
     // Find all items dropped by this user in this session
     const userItems = worldState.items.filter(item => 
       item.droppedBy === userId && item.sessionId === sessionId
     );
 
-    if (userItems.length === 0) {
+    console.log(`🌍 Found ${userItems.length} items dropped by user ${userId} in session ${sessionId}`);
+
+    // If no user-specific items found, allow picking up any items in the location
+    let itemsToPickup = userItems;
+    if (userItems.length === 0 && worldState.items.length > 0) {
+      console.log(`🌍 No user-specific items found, allowing pickup of any items in location`);
+      // Take up to 7 items (matching the AI response) or all available items
+      itemsToPickup = worldState.items.slice(0, 7);
+      console.log(`🌍 Will pick up ${itemsToPickup.length} general items from location`);
+    }
+
+    if (itemsToPickup.length === 0) {
+      console.log(`🌍 No items to pick up at ${locationId}`);
       return [];
     }
 

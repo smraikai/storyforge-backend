@@ -89,12 +89,31 @@ router.post('/:storyId/generate-rag', async (req, res) => {
       try {
         // Process items gained
         if (result.inventoryChanges.items_gained && result.inventoryChanges.items_gained.length > 0) {
+          console.log(`📋 Total items gained: ${result.inventoryChanges.items_gained.length}`);
+          
+          // Log each item's source for debugging
+          result.inventoryChanges.items_gained.forEach((item: any, index: number) => {
+            console.log(`📋 Item ${index + 1}: "${item.name}" source="${item.source}"`);
+          });
+          
           // Check if any items are pickups from world state
           const pickupItems = result.inventoryChanges.items_gained.filter((item: any) => 
             item.source?.includes('picked up') || 
             item.source?.includes('from floor') ||
-            item.source?.includes('from ground')
+            item.source?.includes('from ground') ||
+            item.source?.includes('ground') ||
+            item.source?.includes('floor')
           );
+          
+          const regularItems = result.inventoryChanges.items_gained.filter((item: any) => 
+            !(item.source?.includes('picked up') || 
+              item.source?.includes('from floor') ||
+              item.source?.includes('from ground') ||
+              item.source?.includes('ground') ||
+              item.source?.includes('floor'))
+          );
+          
+          console.log(`📋 Pickup items: ${pickupItems.length}, Regular items: ${regularItems.length}`);
           
           // If there are pickup items, handle them as a batch
           if (pickupItems.length > 0) {
@@ -165,6 +184,7 @@ router.post('/:storyId/generate-rag', async (req, res) => {
 
         // Process items lost
         if (result.inventoryChanges.items_lost && result.inventoryChanges.items_lost.length > 0) {
+          console.log(`📦 Processing ${result.inventoryChanges.items_lost.length} lost items`);
           for (const item of result.inventoryChanges.items_lost) {
             console.log(`🗑️ Processing item loss: ${item.name} (${item.quantity || 1}) - ${item.reason || 'no reason given'}`);
             const inventory = await inventoryService.getPlayerInventory(userId, sessionId);
@@ -178,6 +198,8 @@ router.post('/:storyId/generate-rag', async (req, res) => {
                               item.reason?.includes('voluntarily') ||
                               item.reason?.includes('placed on ground') ||
                               item.reason?.includes('set down');
+                
+                console.log(`🔍 Drop detection for "${item.name}": reason="${item.reason}", isDrop=${isDrop}`);
                 
                 if (isDrop) {
                   // Move item to world state instead of just removing it
