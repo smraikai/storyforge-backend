@@ -1,28 +1,73 @@
 {
   "locations": [
     {
-      "id": "training_chamber",
-      "name": "The Training Chamber",
-      "type": "locked_room",
-      "description": "A circular stone chamber approximately twenty feet in diameter, designed as an ancient training facility. The room features weathered stone blocks fitted together with masterful craftsmanship, and four iron torch sconces provide flickering illumination that creates dancing shadows across the walls.",
-      "atmosphere": "Mysterious yet purposeful, with an air of anticipation. The room feels like a test waiting to be solved, filled with the accumulated wisdom of countless adventurers who came before.",
+      "id": "first_chamber",
+      "name": "The Table Chamber",
+      "type": "puzzle_room",
+      "description": "A rectangular stone chamber with torches flickering along the walls. The centerpiece is a sturdy wooden table covered with various objects - some ordinary, others peculiar. The arrangement seems deliberate, as if each item has been carefully placed for a purpose.",
+      "atmosphere": "Mysterious and inviting, with an air of discovery. The table draws your attention immediately, promising secrets to those who examine it carefully.",
       "notable_features": [
-        "Heavy oak door with iron handle and visible keyhole",
-        "Four iron torch sconces mounted at cardinal directions",
-        "Weathered stone blocks with varying textures and markings",
-        "Circular floor pattern with subtle grooves and worn areas",
-        "Faint scratches and marks left by previous adventurers",
-        "One loose stone in the eastern wall, barely noticeable",
-        "Slightly different torch flame in the northern sconce",
-        "Worn area on the floor near the western wall",
-        "Subtle arrow etched into the stone near the southern torch"
+        "Heavy oak entrance door (sealed behind you)",
+        "Sturdy wooden table in the center of the room",
+        "Various objects scattered across the table surface",
+        "Iron torch sconces providing flickering light",
+        "Another locked door leading deeper into the complex",
+        "Keyhole visible in the second door",
+        "Stone floor with worn patterns from previous visitors"
       ],
       "connections": {
-        "outside": "Locked door - requires key to exit"
+        "entrance": "Sealed - no return",
+        "second_chamber": "Locked door - requires key found on table"
       },
-      "inhabitants": ["Echo", "Chamber's Memory"],
-      "dangers": "None - this is a safe training environment designed for learning",
-      "story_significance": "The core puzzle location where players must discover observation skills and learn to examine their environment carefully. The chamber teaches the fundamental adventure skill of thorough exploration."
+      "inhabitants": ["Echo"],
+      "dangers": "None - safe exploration environment",
+      "story_significance": "Tests observation and item examination skills. The key to progression lies among the objects on the table."
+    },
+    {
+      "id": "second_chamber",
+      "name": "The Warrior's Rest",
+      "type": "social_encounter",
+      "description": "A more spacious chamber with higher ceilings and better lighting. Weapon racks line the walls, and training dummies stand in corners. The room has the feel of a warrior's training hall, with scuffed floors and the lingering scent of leather and steel.",
+      "atmosphere": "Tense and martial, with an underlying current of challenge. The presence of the warrior fills the room with barely contained energy and the promise of conflict or camaraderie.",
+      "notable_features": [
+        "Weapon racks displaying various training weapons",
+        "Leather-wrapped training dummies",
+        "Scuffed stone floor marked by countless sparring sessions",
+        "Higher ceiling with better torch placement",
+        "A simple wooden bench along one wall",
+        "Door to the third chamber - currently unlocked",
+        "Faint bloodstains on the floor (from training, not actual combat)"
+      ],
+      "connections": {
+        "first_chamber": "Unlocked door (one-way - can return)",
+        "third_chamber": "Unlocked door leading to the final chamber"
+      },
+      "inhabitants": ["Gruff the Trainer"],
+      "dangers": "Potential combat encounter if the warrior is provoked or challenged",
+      "story_significance": "Tests social skills and conflict resolution. Players can choose diplomacy or combat, each path offering different lessons and rewards."
+    },
+    {
+      "id": "third_chamber",
+      "name": "The Ethereal Sanctum",
+      "type": "dimensional_chamber",
+      "description": "Upon entering, the door seals behind you with a sound like reality tearing. The chamber exists in a pocket dimension - the walls shimmer with otherworldly energy, and the air itself seems to pulse with magic. Strange symbols float in the air, and the very concept of sound seems muffled and distant.",
+      "atmosphere": "Otherworldly and mystical, completely soundproof from the outside world. The chamber feels like a bridge between dimensions, filled with ancient magic and timeless wisdom.",
+      "notable_features": [
+        "Walls that shimmer with dimensional energy",
+        "Floating mystical symbols that drift through the air",
+        "Complete soundproofing - no noise escapes or enters",
+        "The door seals magically upon entry",
+        "Ethereal lighting that seems to come from nowhere and everywhere",
+        "Floor that occasionally shows glimpses of other dimensions",
+        "Air that tastes faintly of starlight and ancient magic"
+      ],
+      "connections": {
+        "second_chamber": "Magically sealed door - no return without completing the encounter",
+        "completion": "Exit appears only after successfully interacting with the Oracle"
+      },
+      "inhabitants": ["The Dimensional Oracle"],
+      "dangers": "None - this is a realm of pure knowledge and mysticism",
+      "story_significance": "The final test of wisdom and understanding. The Oracle provides deep insights and marks the completion of the training sequence."
     }
   ]
 }

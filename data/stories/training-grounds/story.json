@@ -1,10 +1,10 @@
 {
   "id": "training-grounds",
   "name": "The Training Grounds",
-  "description": "A mysterious locked chamber where adventurers test their wit and observation skills. Can you discover the hidden secrets within and find your way to freedom?",
+  "description": "A three-room training facility that tests observation, social interaction, and courage. Navigate through increasingly challenging encounters as you progress deeper into this mysterious complex.",
   "thumbnail": "training-grounds-thumbnail.jpg",
   "estimatedDuration": "Open-ended",
-  "tags": ["puzzle", "mystery", "exploration", "sandbox"],
+  "tags": ["puzzle", "mystery", "exploration", "combat", "social", "multi-room", "progressive"],
   "author": {
     "id": "storyforge-team",
     "name": "StoryForge Team",
@@ -12,13 +12,13 @@
     "avatarURL": "https://cdn.storyforge.app/authors/storyforge-team.webp"
   },
   "worldInfo": {
-    "setting": "An ancient training facility designed to test adventurers' observation and problem-solving skills",
-    "theme": "Discovery through careful observation and logical thinking",
-    "atmosphere": "Mysterious yet safe, purposefully designed with hidden secrets",
-    "genre": "Mystery puzzle chamber",
-    "tone": "Encouraging and educational, rewarding curiosity"
+    "setting": "An ancient three-room training facility designed to test multiple aspects of adventuring: observation, social skills, and dimensional travel",
+    "theme": "Progressive challenges that test different adventuring abilities",
+    "atmosphere": "Each room has its own distinct atmosphere - from mysterious puzzle chamber to tense social encounter to otherworldly mysticism",
+    "genre": "Multi-stage adventure training",
+    "tone": "Escalating complexity and mystery, with each room presenting unique challenges"
   },
-  "startingPrompt": "You find yourself standing in the center of a circular stone chamber, the heavy oak door behind you sealed shut with an audible click. The room is dimly lit by flickering torches mounted in iron sconces along the walls, casting dancing shadows across weathered stone blocks.\n\nThis appears to be some kind of training facility - ancient but well-maintained. The air smells of old parchment and burning oil, with a faint metallic tang that suggests this place has seen many challenges over the years.\n\nYou turn to examine the door you entered through, running your fingers along its sturdy wooden surface. The handle refuses to budge, and you notice there's a small keyhole beneath the iron handle - clearly, you'll need to find a key to escape.\n\nThe chamber isn't large, perhaps twenty feet across, but it feels deliberately designed. Every stone seems placed with purpose, every shadow carefully considered. Your eyes begin to adjust to the torchlight, revealing details that weren't immediately obvious.\n\nThis is clearly a test of some kind - but what exactly are you meant to discover?",
+  "startingPrompt": "You find yourself standing in the first chamber of what appears to be an ancient training facility. The heavy oak door behind you seals shut with an audible click, and torchlight flickers across weathered stone walls.\n\nIn the center of the room stands a sturdy wooden table, its surface worn smooth by countless hands. Various objects are scattered across it - some mundane, others curious, all seemingly placed with purpose. The flickering torchlight makes it difficult to make out all the details from where you stand.\n\nAcross the room, you notice another door - this one also locked, with a keyhole glinting in the torchlight. It's clear you'll need to find a key to progress further into this mysterious complex.\n\nThe air carries the scent of old parchment and burning oil, with an underlying current of something else - anticipation, perhaps, or the lingering presence of previous adventurers who have walked this path before you.\n\nYou sense this is just the beginning of a multi-stage challenge. What secrets does the table hold, and what lies beyond that second door?",
   "created": "2024-01-15T00:00:00Z",
   "updated": "2024-01-15T00:00:00Z"
 }

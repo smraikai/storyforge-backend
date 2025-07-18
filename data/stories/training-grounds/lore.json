@@ -1,68 +1,84 @@
 {
   "lore": [
     {
-      "id": "training_tradition",
-      "topic": "Ancient Training Traditions",
-      "description": "The training chambers were built centuries ago by master craftsmen who understood that true adventure skills come from patience, observation, and logical thinking rather than brute force or luck.",
+      "id": "three_chamber_design",
+      "topic": "The Three Chamber Trial",
+      "description": "The training facility was designed as a three-stage progression that tests different aspects of adventuring: observation and discovery, social interaction and conflict resolution, and finally, wisdom and dimensional understanding.",
       "category": "history",
       "importance": "common",
-      "keywords": ["training", "tradition", "ancient", "observation", "patience"]
+      "keywords": ["three", "chambers", "progression", "observation", "social", "wisdom"]
     },
     {
-      "id": "chamber_purpose",
-      "topic": "Purpose of the Chamber",
-      "description": "This particular chamber was designed to teach the fundamental skill of careful observation. Every detail has been purposefully placed to reward those who look beyond the obvious.",
+      "id": "table_chamber_purpose",
+      "topic": "The Table Chamber's Design",
+      "description": "The first chamber centers around a table laden with mysterious objects. Each item serves a purpose - some are clues, others are distractions, and one holds the key to progression. The chamber rewards careful examination and logical thinking.",
       "category": "lore",
       "importance": "common",
-      "keywords": ["purpose", "observation", "detail", "reward", "obvious"]
+      "keywords": ["table", "objects", "clues", "distractions", "key", "examination"]
     },
     {
-      "id": "echo_nature",
-      "topic": "The Nature of Echo",
-      "description": "Echo is a benevolent magical construct created by the chamber's original builders. It exists to guide adventurers without spoiling their learning experience, celebrating discoveries and offering gentle nudges when needed.",
-      "category": "magic",
-      "importance": "uncommon",
-      "keywords": ["echo", "magical", "construct", "guide", "benevolent"]
+      "id": "warriors_rest_trial",
+      "topic": "The Warrior's Trial",
+      "description": "The second chamber tests social skills and courage. Gruff the Trainer represents the choice between diplomacy and combat - both paths are valid, but each teaches different lessons about conflict resolution and respect.",
+      "category": "lore",
+      "importance": "common",
+      "keywords": ["warrior", "social", "diplomacy", "combat", "conflict", "respect"]
     },
     {
-      "id": "chamber_memory",
-      "topic": "The Chamber's Living Memory",
-      "description": "The chamber has absorbed the experiences of countless adventurers over the centuries. This accumulated wisdom manifests as subtle environmental cues that guide observant explorers.",
+      "id": "ethereal_sanctum_mystery",
+      "topic": "The Ethereal Sanctum",
+      "description": "The third chamber exists in a pocket dimension, completely sealed from the outside world. It represents the ultimate test of understanding and acceptance of mysteries beyond normal comprehension.",
       "category": "magic",
       "importance": "rare",
-      "keywords": ["memory", "wisdom", "environmental", "cues", "accumulated"]
+      "keywords": ["ethereal", "dimension", "sealed", "mysteries", "comprehension", "ultimate"]
     },
     {
-      "id": "torch_magic",
-      "topic": "Enchanted Torches",
-      "description": "The torches in the chamber are not ordinary flames. They are magically sustained and designed to provide both illumination and subtle hints through their behavior and positioning.",
+      "id": "echo_guidance",
+      "topic": "Echo's Gentle Guidance",
+      "description": "Echo is a benevolent magical construct bound to the first chamber. It exists to guide adventurers through the table puzzle without spoiling discoveries, celebrating observations and offering subtle hints when needed.",
       "category": "magic",
       "importance": "uncommon",
-      "keywords": ["torches", "enchanted", "flames", "magical", "hints"]
+      "keywords": ["echo", "magical", "construct", "guide", "hints", "benevolent"]
     },
     {
-      "id": "stone_craftsmanship",
-      "topic": "Masterful Stone Work",
-      "description": "Every stone in the chamber was carefully selected and placed by master craftsmen. The seemingly random variations in texture and positioning are actually deliberate design elements.",
-      "category": "craftsmanship",
-      "importance": "common",
-      "keywords": ["stone", "craftsmanship", "deliberate", "design", "masterful"]
+      "id": "gruff_philosophy",
+      "topic": "The Trainer's Code",
+      "description": "Gruff the Trainer embodies the warrior's code - respect is earned through courage, whether shown in combat or in standing up for one's beliefs. He tests not just fighting ability, but character and conviction.",
+      "category": "philosophy",
+      "importance": "uncommon",
+      "keywords": ["trainer", "warrior", "code", "respect", "courage", "character"]
     },
     {
-      "id": "learning_philosophy",
-      "topic": "Philosophy of Learning",
-      "description": "The chamber operates on the principle that true learning comes from discovery, not instruction. It provides all necessary information while requiring the adventurer to make connections themselves.",
+      "id": "dimensional_oracle_wisdom",
+      "topic": "The Oracle's Infinite Perspective",
+      "description": "The Dimensional Oracle exists across multiple realities simultaneously. It serves as the final test, offering wisdom that transcends normal understanding and marking the completion of the training sequence.",
+      "category": "magic",
+      "importance": "legendary",
+      "keywords": ["oracle", "dimensional", "realities", "wisdom", "transcends", "completion"]
+    },
+    {
+      "id": "progression_philosophy",
+      "topic": "Progressive Learning Design",
+      "description": "Each chamber builds upon the lessons of the previous one. Observation leads to understanding, understanding enables social interaction, and social wisdom prepares one for transcendent experiences.",
       "category": "philosophy",
       "importance": "common",
-      "keywords": ["learning", "discovery", "philosophy", "connections", "principle"]
+      "keywords": ["progressive", "learning", "observation", "understanding", "social", "transcendent"]
     },
     {
-      "id": "safety_design",
-      "topic": "Safety Through Design",
-      "description": "While the chamber presents challenges, it is fundamentally designed to be safe. Dangerous outcomes only result from extremely reckless actions, serving as important lessons about consequences.",
-      "category": "design",
-      "importance": "common",
-      "keywords": ["safety", "design", "consequences", "reckless", "lessons"]
+      "id": "dimensional_sealing",
+      "topic": "The Sealing of Dimensions",
+      "description": "The third chamber's door seals behind visitors not as a trap, but as a necessity. The dimensional energies within cannot be allowed to leak into normal reality, requiring complete isolation during the encounter.",
+      "category": "magic",
+      "importance": "rare",
+      "keywords": ["dimensional", "sealing", "isolation", "energies", "reality", "necessity"]
+    },
+    {
+      "id": "table_object_symbolism",
+      "topic": "Symbolism of the Table Objects",
+      "description": "Every object on the table in the first chamber was chosen for its symbolic meaning. The candle represents illumination of knowledge, the journal holds the wisdom of those who came before, and the compass points toward truth.",
+      "category": "symbolism",
+      "importance": "uncommon",
+      "keywords": ["table", "objects", "symbolism", "illumination", "wisdom", "truth"]
     }
   ]
 }

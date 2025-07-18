@@ -4,30 +4,67 @@
       "id": "echo",
       "name": "Echo",
       "type": "guide",
-      "description": "A mysterious voice that seems to emanate from the walls themselves. Echo appears to be some kind of magical construct or spirit bound to this training chamber, designed to guide adventurers through their trials.",
-      "personality": "Helpful but cryptic, encouraging without giving away solutions. Speaks with a slightly echoing quality and seems amused by clever discoveries. Takes pride in watching adventurers grow through challenges.",
-      "abilities": ["Omnipresent awareness within the chamber", "Ability to sense player actions", "Knowledge of chamber secrets", "Gentle guidance provision"],
-      "location": "Training Chamber",
+      "description": "A mysterious voice that emanates from the walls of the first chamber. Echo is a magical construct bound to the Table Chamber, designed to guide adventurers through the initial puzzle without giving away solutions directly.",
+      "personality": "Helpful but cryptic, encouraging without spoiling discoveries. Takes pride in watching adventurers learn through careful observation. Speaks with a gentle, echoing quality.",
+      "abilities": ["Omnipresent awareness within the first chamber", "Ability to sense player actions", "Knowledge of table contents", "Gentle guidance provision"],
+      "location": "The Table Chamber",
       "relationships": {
-        "chamber_creators": "Faithful servant, follows their original programming to help adventurers learn"
+        "chamber_creators": "Faithful servant, follows original programming to help adventurers learn",
+        "table_objects": "Intimate knowledge of every item and its purpose"
       },
-      "dialogue_style": "Speaks in a resonant, slightly echoing voice. Uses encouraging phrases like 'Interesting approach...' and 'The chamber rewards the observant...' Often poses guiding questions rather than giving direct answers.",
-      "story_role": "Tutorial guide who provides hints when players are stuck, celebrates discoveries, and encourages thorough exploration without spoiling puzzles"
+      "dialogue_style": "Speaks in a resonant, slightly echoing voice. Uses phrases like 'The table holds many secrets...' and 'Look carefully, young adventurer...' Often poses guiding questions about what the player observes.",
+      "story_role": "Tutorial guide for the first chamber, provides hints about examining the table and finding the key among the objects",
+      "combat_stats": "Non-combatant - exists only as a helpful voice"
     },
     {
-      "id": "chamber_spirit",
-      "name": "The Chamber's Memory",
-      "type": "environmental",
-      "description": "Not a character in the traditional sense, but the accumulated knowledge and energy of countless adventurers who have passed through this chamber. Manifests as fleeting impressions, whispered insights, and intuitive nudges.",
-      "personality": "Ancient, wise, and patient. Represents the collective experience of all who have solved this puzzle before.",
-      "abilities": ["Provides intuitive insights", "Manifests as environmental clues", "Guides through subtle environmental changes"],
-      "location": "Training Chamber",
+      "id": "gruff_trainer",
+      "name": "Gruff the Trainer",
+      "type": "warrior_npc",
+      "description": "A grizzled veteran warrior who has made the second chamber his training ground. Scarred from countless battles, he's both a skilled fighter and a reluctant teacher. His weathered face tells stories of victories and defeats, and his eyes hold the fire of someone who lives for combat.",
+      "personality": "Aggressive and confrontational by nature, but respects strength and courage. Quick to anger if insulted or challenged, but capable of respect for those who prove themselves. Has a warrior's code of honor despite his rough exterior.",
+      "abilities": ["Expert swordsman", "Hand-to-hand combat", "Weapon mastery", "Intimidation", "Grudging respect for worthy opponents"],
+      "location": "The Warrior's Rest",
       "relationships": {
-        "echo": "Complementary presence, provides context for Echo's guidance",
-        "previous_adventurers": "Carries memories and wisdom of all who came before"
+        "previous_adventurers": "Has tested many who passed through, respects those who showed courage",
+        "training_facility": "Considers himself the guardian of the warrior's path"
       },
-      "dialogue_style": "Communicates through environmental storytelling rather than direct speech - subtle changes in torch brightness, stone warmth, or air currents that guide attention.",
-      "story_role": "Provides environmental feedback and subtle guidance through non-verbal cues, reinforcing player discoveries and hinting at overlooked details"
+      "dialogue_style": "Gruff, direct, and often confrontational. Uses phrases like 'You think you're tough?' and 'I've seen weaklings like you before.' Can become respectful if the player shows courage or skill.",
+      "story_role": "Tests the player's social and combat skills. Can be befriended through respectful conversation or challenged to combat. Represents the choice between diplomacy and conflict.",
+      "combat_stats": {
+        "health": 75,
+        "attack": 15,
+        "defense": 12,
+        "speed": 8,
+        "special_abilities": ["Veteran's Strike - extra damage on critical hits", "Intimidating Presence - may cause fear"]
+      },
+      "conversation_triggers": {
+        "respectful_approach": "Becomes more friendly, may offer training tips or warrior wisdom",
+        "challenging_approach": "Becomes hostile, likely to initiate combat",
+        "neutral_approach": "Remains gruff but won't attack unless provoked"
+      }
+    },
+    {
+      "id": "dimensional_oracle",
+      "name": "The Dimensional Oracle",
+      "type": "mystical_entity",
+      "description": "An ancient being that exists between dimensions, appearing as a shimmering, translucent figure surrounded by floating symbols and ethereal light. Neither fully human nor entirely otherworldly, the Oracle speaks with the wisdom of ages and the knowledge of countless realities.",
+      "personality": "Serene, wise, and timeless. Speaks in riddles and metaphors that reveal deep truths. Patient and understanding, with a perspective that spans multiple dimensions and realities.",
+      "abilities": ["Dimensional sight", "Prophetic visions", "Reality manipulation within the sanctum", "Infinite knowledge", "Ability to grant dimensional insights"],
+      "location": "The Ethereal Sanctum",
+      "relationships": {
+        "dimensional_fabric": "Guardian and interpreter of the spaces between worlds",
+        "training_facility": "Final arbiter of the complete training sequence",
+        "reality_itself": "Exists as a bridge between what is and what could be"
+      },
+      "dialogue_style": "Speaks in flowing, poetic language with multiple layers of meaning. Uses phrases like 'I see the threads of possibility...' and 'The dimensions whisper of your journey...' Often provides cryptic wisdom that becomes clear in retrospect.",
+      "story_role": "Final test of wisdom and understanding. Provides deep insights about the player's journey and marks the completion of the training sequence. May offer glimpses of possible futures or alternative realities.",
+      "combat_stats": "Non-combatant - exists on a plane beyond physical conflict",
+      "mystical_abilities": {
+        "dimensional_vision": "Can see across multiple realities and timelines",
+        "reality_anchoring": "Maintains the stability of the dimensional sanctum",
+        "prophetic_insight": "Offers glimpses of potential futures based on current choices",
+        "dimensional_exit": "Can open the portal to complete the training sequence"
+      }
     }
   ]
 }
